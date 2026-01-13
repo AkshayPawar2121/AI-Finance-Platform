@@ -1,1 +1,1 @@
-Ai finance platform.
+Ai finance platform with ui.
