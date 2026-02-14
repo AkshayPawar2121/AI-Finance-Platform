@@ -1,0 +1,29 @@
+# Start with project specific ignores
+
+# Ignore Maven target directory
+target/
+nextgendemo/target/
+
+# Ignore Python virtual environments
+.venv/
+.venv_local/
+pycharm/budgetmodel/.venv/
+pycharm/budgetmodel/.venv_local/
+__pycache__/
+*.pkl
+*.pyc
+
+# Ignore IDE specific files
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Ignore logs
+*.log
+
+# Ignore OS files
+Desktop.ini
+Thumbs.db
