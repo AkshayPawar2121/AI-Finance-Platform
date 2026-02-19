@@ -1,348 +1,320 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="In the modern world where the financial aspect is one of the most crucial for people’s lives, technology provides effective instruments to control the financial situation and plan for the future.">
-  <title>NextGen Personal Finance</title>
-  <!-- Bootstrap CSS -->
-  <link 
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" 
-    rel="stylesheet">
-  <style>
-    /* General Reset */
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
+  <!DOCTYPE html>
+  <html lang="en" data-bs-theme="dark">
 
-    /* Hero Section */
-    .hero-section {
-      background: url('https://media.istockphoto.com/id/494940062/photo/financial-concept-business-and-money.jpg?s=612x612&w=0&k=20&c=WXZe41O-IH8N7wRKPaU4T-fA6DlJz4U8zQRRMf_U5wk=') no-repeat center center;
-      background-size: cover; /* Ensures the image covers the section */
-      height: 100vh; /* Adjusted to cover full viewport */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    /* Logo Styling */
-    .logo-container {
-      position: absolute;
-      top: 20px;
-      left: 30px;
-      z-index: 10;
-    }
-
-    .logo-container .logo-img {
-  width: 50%; /* Increased width */
-  height: auto; /* Maintain aspect ratio */
-  transition: transform 0.3s ease;
-}
-
-.logo-container .logo-img:hover {
-  transform: scale(1.1); /* Slight zoom on hover */
-}
-
-
-    /* Hero Section: Login & Signup buttons */
-    .auth-buttons {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      z-index: 10;
-    }
-
-    .auth-buttons .btn {
-      font-size: 1rem;
-      padding: 10px 20px;
-      border-radius: 25px;
-      margin-left: 10px;
-      transition: all 0.3s ease;
-    }
-
-    .btn-primary {
-      background-color: #0056b3;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background-color: #003580;
-    }
-
-    .btn-warning {
-      background-color: #ffcc00;
-      border: none;
-      color: #003580;
-    }
-
-    .btn-warning:hover {
-      background-color: #ffd633;
-    }
-
-    /* Hero Overlay */
-    .hero-overlay {
-      background: rgba(0, 0, 0, 0.6); /* Dark overlay for readability */
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .hero-content {
-      max-width: 700px;
-      text-align: center;
-    }
-
-    .hero-content h1 {
-      font-size: 3.5rem;
-      color: #ffcc00;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-
-    .hero-content .highlight {
-      animation: pulse 2s infinite;
-    }
-
-    .hero-content p {
-      font-size: 1.2rem;
-      color: #f0f0f0;
-      margin-bottom: 30px;
-    }
-
-    /* Center Get Started Button */
-    .get-started-btn {
-      margin-top: 20px;
-    }
-
-    /* Pulse Animation */
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Intelligent financial planning for the modern era.">
+    <title>NextGen Finance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-body: #121212;
+        --surface: #1e1e1e;
+        --surface-hover: #2d2d2d;
+        --primary: #8ab4f8;
+        /* Google Blue */
+        --primary-hover: #aecbfa;
+        --text-main: #e8eaed;
+        --text-muted: #9aa0a6;
+        --border: #3c4043;
       }
-      50% {
-        transform: scale(1.1);
+
+      body {
+        background-color: var(--bg-body) !important;
+        color: var(--text-main) !important;
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
       }
-    }
 
-    /* Features Section */
-    .features {
-      background-color: #f8f9fa;
-    }
+      /* Navbar */
+      .navbar {
+        background-color: transparent;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid transparent;
+        transition: background 0.3s;
+      }
 
-    .features h2 {
-      color: #0056b3;
-    }
+      .navbar-brand {
+        color: var(--text-main) !important;
+        font-weight: 600;
+        font-size: 1.25rem;
+        letter-spacing: -0.5px;
+      }
 
-    .features h5 {
-      color: #003580;
-      font-weight: bold;
-    }
+      .btn-nav-login {
+        color: var(--text-main);
+        font-weight: 500;
+      }
 
-    /* Footer */
-    .footer {
-      background: linear-gradient(135deg, #0056b3, #003580);
-      color: white;
-      padding: 2rem 0;
-    }
+      .btn-nav-signup {
+        background-color: var(--primary);
+        color: #202124;
+        border-radius: 20px;
+        padding: 8px 24px;
+        font-weight: 500;
+        border: none;
+        transition: all 0.2s;
+      }
 
-    .footer h5 {
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-      color: #ffcc00;
-    }
+      .btn-nav-signup:hover {
+        background-color: var(--primary-hover);
+        color: #202124;
+      }
 
-    .footer p {
-      font-size: 0.95rem;
-      color: #f0f0f0;
-    }
+      /* Hero */
+      .hero {
+        padding: 8rem 0 6rem;
+        text-align: center;
+      }
 
-    .footer ul {
-      padding: 0;
-      list-style: none;
-    }
+      .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 600;
+        letter-spacing: -1px;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(180deg, #ffffff, #9aa0a6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+      }
 
-    .footer ul li {
-      margin-bottom: 0.5rem;
-      color: #e0e0e0;
-    }
+      .hero p {
+        color: var(--text-muted);
+        font-size: 1.25rem;
+        max-width: 600px;
+        margin: 0 auto 3rem;
+        line-height: 1.6;
+      }
 
-    .footer ul li a {
-      text-decoration: none;
-      color: #ffcc00;
-    }
+      .btn-hero {
+        background-color: var(--primary);
+        color: #202124;
+        padding: 12px 32px;
+        border-radius: 24px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: transform 0.2s;
+        display: inline-block;
+      }
 
-    .footer ul li a:hover {
-      text-decoration: underline;
-      color: #ffe680;
-    }
+      .btn-hero:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        color: #202124;
+      }
 
-    .footer ul.list-inline {
-      margin: 0;
-    }
+      /* Features */
+      .feature-card {
+        background-color: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        height: 100%;
+        transition: border-color 0.3s, transform 0.3s;
+      }
 
-    .footer ul.list-inline li {
-      display: inline;
-      margin-right: 0.75rem;
-    }
+      .feature-card:hover {
+        border-color: var(--text-muted);
+        transform: translateY(-4px);
+      }
 
-    .footer ul.list-inline li a {
-      font-size: 1.5rem;
-      color: white;
-      transition: color 0.3s;
-    }
+      .feature-icon {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary);
+      }
 
-    .footer ul.list-inline li a:hover {
-      color: #ffcc00;
-    }
+      .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
 
-    .footer .text-muted {
-      font-size: 0.85rem;
-    }
+      .feature-text {
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
 
-    .features .card-body img {
-      max-width: 80px; /* Set the maximum width for the image */
-      height: auto; /* Maintain the aspect ratio */
-      margin-bottom: 15px; /* Add spacing below the logo */
-      transition: transform 0.3s ease; /* Add a smooth transition effect */
-    }
+      /* Footer */
+      .footer {
+        border-top: 1px solid var(--border);
+        padding: 4rem 0;
+        margin-top: 6rem;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
 
-    .features .card-body img:hover {
-      transform: scale(1.2); /* Slightly enlarge on hover */
-    }
-  </style>
-</head>
-<body>
-  <!-- Hero Section -->
-  <div class="hero-section">
-    <!-- Logo Container
-    <div class="logo-container">
-      <a href="index.html">
-      		<img src="https://drive.google.com/file/d/1Qje7SXC61GwGvReKN9cE6zbQgGWLjFSn/view?usp=sharing" alt="Image">
-      </a>
-    </div> -->
-    <!-- Login & Sign-Up Buttons -->
-    <div class="auth-buttons">
-      <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
-      <a href="/register" class="btn btn-warning">Sign Up</a>
-    </div>
-	
-	<!-- Login Modal -->
-		<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="loginModalLabel">Login</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div class="modal-body">
-						<form action="/verify" method="post">
-							<div class="mb-3">
-								<label for="email" class="form-label">Email address</label>
-								<input type="email" class="form-control" name="email" id="email" placeholder="Enter your email">
-							</div>
-							<div class="mb-3">
-								<label for="password" class="form-label">Password</label>
-								<input type="password" class="form-control" name="password" id="password" placeholder="Enter your password">
-							</div>
-							
-							<button type="submit" class="btn btn-primary w-100">Login</button>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<div class="text-center w-100">
-							<a href="#">Forgot Password?</a> | <a href="/register">Sign Up</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+      /* Modal */
+      .modal-content {
+        background-color: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        color: var(--text-main);
+      }
 
+      .modal-header {
+        border-bottom: 1px solid var(--border);
+      }
 
-	
-    <div class="hero-overlay">
-      <div class="hero-content text-center text-light">
-        <h1 class="display-4"><span class="highlight" style="color: white;">NextGen </span><span style="color: #0056b3;">Finance</span></h1>
-        <p class="lead mt-3">
-          A smarter way to manage your finances, powered by AI insights for better financial decisions.
-        </p>
-        <div class="get-started-btn">
-          <a href="/register" class="btn btn-light">Get Started</a>
+      .modal-footer {
+        border-top: 1px solid var(--border);
+      }
+
+      .form-control {
+        background-color: #2d2d2d !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-main) !important;
+        border-radius: 8px;
+        padding: 12px;
+      }
+
+      .form-control:focus {
+        background-color: #2d2d2d !important;
+        border-color: var(--primary) !important;
+        color: var(--text-main) !important;
+        box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.2) !important;
+      }
+
+      .form-label {
+        color: var(--text-muted) !important;
+      }
+
+      .btn-primary {
+        background-color: var(--primary);
+        border: none;
+        color: #202124 !important;
+        font-weight: 500;
+        padding: 10px;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+        color: #202124 !important;
+      }
+
+      .btn-close {
+        filter: invert(1);
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container">
+        <a class="navbar-brand" href="#">NextGen Finance</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+          <span class="navbar-toggler-icon" style="filter: invert(1)"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navContent">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item me-3">
+              <button class="btn btn-nav-login btn-link text-decoration-none" data-bs-toggle="modal"
+                data-bs-target="#loginModal">
+                Log in
+              </button>
+            </li>
+            <li class="nav-item">
+              <a href="/register" class="btn btn-nav-signup">Get Started</a>
+            </li>
+          </ul>
         </div>
       </div>
-    </div>
-  </div>
+    </nav>
 
-  <section class="features py-5">
-    <div class="container">
-      <h2 class="text-center mb-4">Our Features</h2>
-      <div class="row">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <h1>Financial intelligence,<br>simplified.</h1>
+        <p>Experience the next generation of personal finance management. <br>AI-driven insights for smarter budgeting,
+          expense tracking, and goal setting.</p>
+        <a href="/register" class="btn-hero">Start your journey</a>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="container py-5">
+      <div class="row g-4">
         <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-              <img src="./robot.svg" alt="AI Insights Logo" class="feature-logo">
-              <h5 class="card-title text-primary">AI-Driven Insights</h5>
-              <p class="card-text">Receive personalized financial advice based on your spending habits and goals.</p>
+          <div class="feature-card">
+            <div class="feature-icon">✨</div>
+            <div class="feature-title">AI Predictions</div>
+            <div class="feature-text">
+              Leverage our advanced machine learning probability models to forecast your future expenses and plan
+              smarter budgets.
             </div>
           </div>
         </div>
         <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-              <img src="./currency-rupee.svg" alt="Expense Tracking Logo" class="feature-logo">
-              <h5 class="card-title text-primary">Expense Tracking</h5>
-              <p class="card-text">Keep track of your expenses and optimize your budget with real-time analytics.</p>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Expense Tracking</div>
+            <div class="feature-text">
+              Gain complete visibility into your spending habits. Categorize, analyze, and optimize your monthly
+              outflow.
             </div>
           </div>
         </div>
         <div class="col-md-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-              <img src="./clock.svg" alt="Future Planning Logo" class="feature-logo">
-              <h5 class="card-title text-primary">Future Planning</h5>
-              <p class="card-text">Plan for the future with AI-generated predictions and goal-setting tools.</p>
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-title">Goal Setter</div>
+            <div class="feature-text">
+              Define your financial targets and track progress. We help you stay disciplined and reach your milestones
+              faster.
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Contact Us Section -->
-  <section class="contact-us py-5">
-    <div class="container">
-      <h2 class="text-center mb-4">Contact Us</h2>
-      <div class="row justify-content-center">
-        <div class="col-md-8">
-          <form action="mailto:support@nextgenfinance.com" method="post" enctype="text/plain">
-            <div class="mb-3">
-              <label for="name" class="form-label">Name</label>
-              <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required>
-            </div>
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="Your Email" required>
-            </div>
-            <div class="mb-3">
-              <label for="message" class="form-label">Message</label>
-              <textarea class="form-control" id="message" name="message" rows="5" placeholder="Your Message" required></textarea>
-            </div>
-            <div class="text-center">
-              <button type="submit" class="btn btn-primary px-5">Send Message</button>
-            </div>
-          </form>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2026 NextGen Finance. Built for the future.</p>
+      </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <!-- PRESERVING BACKEND LOGIC: ID="loginModal", Action="/verify", Inputs "email", "password" -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title">Welcome back</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body pt-4">
+            <form action="/verify" method="post">
+              <div class="mb-3">
+                <label for="email" class="form-label small">Email address</label>
+                <input type="email" class="form-control" name="email" id="email" required
+                  placeholder="name@example.com">
+              </div>
+              <div class="mb-4">
+                <label for="password" class="form-label small">Password</label>
+                <input type="password" class="form-control" name="password" id="password" required
+                  placeholder="Enter your password">
+              </div>
+              <button type="submit" class="btn btn-primary w-100 rounded-pill">Log in</button>
+            </form>
+          </div>
+          <div class="modal-footer border-0 justify-content-center">
+            <p class="small text-muted">Don't have an account? <a href="/register" class="text-decoration-none"
+                style="color: var(--primary);">Sign up</a></p>
+          </div>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+
+  </html>
