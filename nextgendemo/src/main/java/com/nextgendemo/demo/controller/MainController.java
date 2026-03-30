@@ -30,8 +30,10 @@ import com.nextgendemo.demo.Home.ExpenseTracker.Service.ExpenseService;
 import com.nextgendemo.demo.Home.GoalSetter.Entity.AmountSet;
 import com.nextgendemo.demo.Home.GoalSetter.Service.AmountSetService;
 import com.nextgendemo.demo.Register.Service.RegisterService;
+import com.nextgendemo.demo.Register.Service.RegisterService.RegistrationResult;
 
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -64,13 +66,17 @@ public class MainController {
 	    public String registerUser(@RequestParam String name,
 	                               @RequestParam String mobile,
 	                               @RequestParam String email,
-	                               @RequestParam String password) {
-	        boolean isRegistered = rs.registerUser(name, mobile, email, password);
+	                               @RequestParam String password,
+	                               RedirectAttributes redirectAttributes) {
+	        RegistrationResult result = rs.registerUser(name, mobile, email, password);
 	
-	        if (isRegistered) {
-	            return "redirect:/register"; // Redirect to a success page
+	        if (result.isSuccess()) {
+	            redirectAttributes.addFlashAttribute("successMessage", "Account created successfully! Please log in.");
+	            return "redirect:/"; // Redirect to login page
 	        } else {
-	            return "redirect:/error"; // Redirect to an error page in case of failure
+	            // Pass specific error message from validation
+	            redirectAttributes.addFlashAttribute("errorMessage", result.getErrorMessage());
+	            return "redirect:/register"; // Redirect back to registration with error
 	        }
 	    }
 
@@ -78,7 +84,8 @@ public class MainController {
 	    // Home Page Mapping After Login    
 	    // Login page submission and loading of the home page
 	    @PostMapping("/verify")
-	    public String home(@RequestParam String email, @RequestParam String password, HttpSession session) {
+	    public String home(@RequestParam String email, @RequestParam String password,
+	                       HttpSession session, RedirectAttributes redirectAttributes) {
 	        boolean isHome = h.validateLogin(email, password);
 	        if (isHome) {
 	            // Fetch user details (e.g., name) from the database
@@ -86,7 +93,9 @@ public class MainController {
 	            session.setAttribute("userName", userName);
 	            return "redirect:/home"; // Redirect to the home page
 	        } else {
-	            return "redirect:/"; // Redirect to the login page
+	            // Don't reveal whether email or password was incorrect (security best practice)
+	            redirectAttributes.addFlashAttribute("loginError", "Invalid email or password. Please try again.");
+	            return "redirect:/"; // Redirect to the login page with error
 	        }
 	    }
 	    
