@@ -9,6 +9,7 @@
     <title>NextGen Finance</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
       :root {
         --bg-body: #121212;
@@ -201,6 +202,50 @@
       .btn-close {
         filter: invert(1);
       }
+
+      /* Password toggle for login modal */
+      .password-wrapper {
+        position: relative;
+      }
+
+      .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+
+      .password-toggle:hover {
+        color: var(--text-main);
+      }
+
+      /* Alert styles in modal */
+      .alert {
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        border: 1px solid;
+      }
+
+      .alert-success {
+        background-color: #1f3d2c;
+        border-color: #2d5a3f;
+        color: #5ec878;
+      }
+
+      .alert-danger {
+        background-color: #3d1f1f;
+        border-color: #6e2828;
+        color: #ff6b6b;
+      }
     </style>
   </head>
 
@@ -292,16 +337,31 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body pt-4">
-            <form action="/verify" method="post">
+            <c:if test="${not empty successMessage}">
+              <div class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i>${successMessage}
+              </div>
+            </c:if>
+            <c:if test="${not empty loginError}">
+              <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>${loginError}
+              </div>
+            </c:if>
+            <form action="/verify" method="post" id="loginForm">
               <div class="mb-3">
-                <label for="email" class="form-label small">Email address</label>
-                <input type="email" class="form-control" name="email" id="email" required
+                <label for="loginEmail" class="form-label small">Email address</label>
+                <input type="email" class="form-control" name="email" id="loginEmail" required
                   placeholder="name@example.com">
               </div>
               <div class="mb-4">
-                <label for="password" class="form-label small">Password</label>
-                <input type="password" class="form-control" name="password" id="password" required
-                  placeholder="Enter your password">
+                <label for="loginPassword" class="form-label small">Password</label>
+                <div class="password-wrapper">
+                  <input type="password" class="form-control" name="password" id="loginPassword" required
+                    placeholder="Enter your password" style="padding-right: 40px;">
+                  <button type="button" class="password-toggle" id="loginPasswordToggle">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
               </div>
               <button type="submit" class="btn btn-primary w-100 rounded-pill">Log in</button>
             </form>
@@ -315,6 +375,43 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Auto-open login modal if success or error message exists
+      window.addEventListener('DOMContentLoaded', function() {
+        const hasSuccessMessage = document.querySelector('.alert-success');
+        const hasLoginError = document.querySelector('.alert-danger');
+
+        // Check for URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const shouldOpenLogin = urlParams.get('openLogin') === 'true';
+
+        if (hasSuccessMessage || hasLoginError || shouldOpenLogin) {
+          const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+          loginModal.show();
+
+          // Clean URL by removing the parameter (optional, for cleaner URLs)
+          if (shouldOpenLogin) {
+            window.history.replaceState({}, document.title, '/');
+          }
+        }
+      });
+
+      // Password toggle for login modal
+      document.getElementById('loginPasswordToggle').addEventListener('click', function() {
+        const passwordInput = document.getElementById('loginPassword');
+        const icon = this.querySelector('i');
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    </script>
   </body>
 
   </html>

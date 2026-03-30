@@ -6,6 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "register")
@@ -14,16 +18,25 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
+	@NotBlank(message = "Name is required")
+	@Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
+	@Pattern(regexp = "^[A-Za-z ]+$", message = "Name can only contain letters and spaces")
 	@Column(nullable = false)
 	private String name;
-	
+
+	@NotBlank(message = "Mobile number is required")
+	@Pattern(regexp = "^[0-9+\\-() ]{10,15}$", message = "Please enter a valid mobile number")
 	@Column(nullable = false)
 	private String mobile;
-	
-	@Column(nullable = false)
+
+	@NotBlank(message = "Email is required")
+	@Email(message = "Please enter a valid email address")
+	@Column(nullable = false, unique = true)
 	private String email;
-	
+
+	@NotBlank(message = "Password is required")
+	@Size(min = 8, message = "Password must be at least 8 characters long")
 	@Column(nullable = false)
 	private String password;
 	
