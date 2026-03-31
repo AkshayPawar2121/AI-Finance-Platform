@@ -14,7 +14,7 @@ public class Home {
 	    private HomeRepository homeRepository;
 
 	    public boolean validateLogin(String email, String password) {
-	        User user = homeRepository.findByEmail(email); // Fetch user by email
+	        User user = homeRepository.findFirstByEmail(email); // Fetch user by email
 
 	        if (user != null && user.getPassword().equals(password)) {
 	            return true; // Valid credentials
@@ -23,7 +23,7 @@ public class Home {
 	    }
 	    
 	    public String getUserNameByEmail(String email) {
-	        User user = homeRepository.findByEmail(email);
+	        User user = homeRepository.findFirstByEmail(email);
 	        return user != null ? user.getEmail() : null;
 	    }
 	

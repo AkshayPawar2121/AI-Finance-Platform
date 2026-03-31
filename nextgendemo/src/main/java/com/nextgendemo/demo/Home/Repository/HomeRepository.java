@@ -7,5 +7,5 @@ import com.nextgendemo.demo.Home.User.User;
 
 @Repository
 public interface HomeRepository extends JpaRepository<User, Long> {
-    User findByEmail(String email); // Custom query to fetch user by email
+    User findFirstByEmail(String email); // Custom query to fetch user by email
 }

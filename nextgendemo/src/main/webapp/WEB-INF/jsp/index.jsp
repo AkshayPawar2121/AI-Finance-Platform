@@ -1,4 +1,4 @@
-﻿<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <!DOCTYPE html>
     <html lang="en">
 
@@ -1982,6 +1982,19 @@
                     card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
                 });
             });
+
+            // ── Auto-open login modal on redirect
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('registered') === 'true' || urlParams.get('error') === 'true') {
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+                
+                // Show generic error styling for failed login attempts
+                if (urlParams.get('error') === 'true') {
+                    document.getElementById('email').style.borderColor = 'var(--danger)';
+                    document.getElementById('password').style.borderColor = 'var(--danger)';
+                }
+            }
         </script>
     </body>
 

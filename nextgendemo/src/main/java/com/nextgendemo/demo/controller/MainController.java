@@ -68,9 +68,9 @@ public class MainController {
 	        boolean isRegistered = rs.registerUser(name, mobile, email, password);
 	
 	        if (isRegistered) {
-	            return "redirect:/register"; // Redirect to a success page
+	            return "redirect:/?registered=true"; // Redirect to the login page on success
 	        } else {
-	            return "redirect:/error"; // Redirect to an error page in case of failure
+	            return "redirect:/register?error=true"; // Redirect to an error page in case of failure
 	        }
 	    }
 
@@ -86,7 +86,7 @@ public class MainController {
 	            session.setAttribute("userName", userName);
 	            return "redirect:/home"; // Redirect to the home page
 	        } else {
-	            return "redirect:/"; // Redirect to the login page
+	            return "redirect:/?error=true"; // Redirect to the login page with error flag
 	        }
 	    }
 	    
