@@ -711,7 +711,7 @@
         <div class="left-hero">
             <div class="left-badge">
                 <span class="badge-dot"></span>
-                Free forever · No credit card needed
+                Free forever &ndash; No credit card needed
             </div>
             <h1 class="left-title">
                 Take control of<br>
