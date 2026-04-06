@@ -1,196 +1,64 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+# train_model.py — Trains the budget prediction model and saves model.pkl
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+import joblib
+import os
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="_csrf" content="${_csrf.token}"/>
-  <title>Finance Dashboard</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    /* Your existing CSS remains unchanged */
-    .card-body {
-      padding: 1rem;
-    }
-    .progress-bar {
-      transition: width 0.5s ease;
-    }
-    #sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      padding-top: 20px;
-    }
-    .nav-link.active {
-      background-color: #f0f0f0;
-      font-weight: bold;
-    }
-    .centered-container {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-    }
-    .large-label {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-    .small-input {
-        font-size: 1rem;
-        padding: 0.5rem;
-    }
-  </style>
-</head>
-<body>
-  <!-- Navbar and other HTML remains unchanged until the suggestions section -->
-  
-  <!-- Suggestions Section -->
-  <div id="suggestions" class="section" style="display: none;">
-    <div class="centered-container">
-      <div class="container my-5">
-        <div class="row mb-4 justify-content-center">
-          <div class="col-md-8">
-            <div class="card">
-              <div class="card-body">
-                <form id="suggestionsForm">
-                  <div class="mb-3">
-                    <label for="suggestIncome" class="form-label large-label">Income</label>
-                    <input type="number" class="form-control small-input" id="suggestIncome" name="income" placeholder="Enter your income" min="0" step="1" required>
-                  </div>
-                  <table class="table table-striped table-bordered">
-                    <thead class="table-dark">
-                      <tr>
-                        <th scope="col">Goal Name</th>
-                        <th scope="col">Target Amount</th>
-                        <th scope="col">Remaining Amount</th>
-                        <th scope="col">Priority</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <c:forEach var="goal" items="${userGoals}" varStatus="loop">
-                        <tr>
-                          <td>${goal.goalName}</td>
-                          <td>${goal.target}</td>
-                          <td>${goal.target - (goal.remainingAmount != null ? goal.remainingAmount : 0)}</td>
-                          <td>
-                            <input type="number" class="form-control form-control-sm priority-input" 
-                                   name="priority_${loop.index}" 
-                                   value="${loop.index + 1}" 
-                                   min="1" required>
-                          </td>
-                        </tr>
-                      </c:forEach>
-                      <c:if test="${empty userGoals}">
-                        <tr><td colspan="4" class="text-center">No goals found</td></tr>
-                      </c:if>
-                    </tbody>
-                  </table>
-                  <button type="button" class="btn btn-primary mt-3" id="submitSuggestions">Suggest</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+def train_model():
+    try:
+        csv_path = os.path.join(os.path.dirname(__file__), 'sample.csv')
+        print(f"Loading dataset from: {csv_path}")
+        data = pd.read_csv(csv_path)
 
-  <!-- Rest of your HTML remains unchanged -->
+        print(f"Dataset loaded: {data.shape[0]} rows, {data.shape[1]} columns")
+        print(f"Columns: {list(data.columns)}")
 
-  <!-- JavaScript Section -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
-    // Your existing section switching and other functions remain unchanged
-    
-    // Suggestions Form Handling - NEW IMPLEMENTATION
-    $(document).ready(function() {
-      $('#submitSuggestions').click(function() {
-        submitSuggestions();
-      });
-    });
+        # Input and output columns
+        input_columns = ['Income', 'Age', 'Dependents', 'Occupation', 'City_Tier', 'Loan_Repayment', 'Insurance']
+        output_columns = ['Rent', 'Groceries', 'Transport', 'Eating_Out', 'Entertainment',
+                          'Utilities', 'Healthcare', 'Education', 'Desired_Savings']
 
-    function submitSuggestions() {
-      try {
-        // 1. Collect income
-        const income = $('#suggestIncome').val() ? parseInt($('#suggestIncome').val()) : 0;
-        
-        // 2. Collect table data
-        const goals = [];
-        let isValid = true;
-        
-        $('table tbody tr').each(function() {
-          // Skip empty rows
-          if ($(this).find('td[colspan]').length > 0) return;
-          
-          const cells = $(this).find('td');
-          if (cells.length < 4) return;
-          
-          const goalName = $(cells[0]).text().trim();
-          const targetAmount = parseFloat($(cells[1]).text().replace(/[^0-9.-]+/g, '')) || 0;
-          const remainingAmount = parseFloat($(cells[2]).text().replace(/[^0-9.-]+/g, '')) || 0;
-          const priorityInput = $(cells[3]).find('.priority-input');
-          
-          if (priorityInput.length === 0) {
-            console.error('Priority input not found for row:', $(this));
-            isValid = false;
-            return;
-          }
-          
-          const priority = parseInt(priorityInput.val());
-          
-          if (isNaN(priority) || priority < 1) {
-            alert(`Please enter a valid priority (≥1) for goal: ${goalName}`);
-            isValid = false;
-            return false; // Break out of the each loop
-          }
-          
-          goals.push({
-            goalName,
-            targetAmount,
-            remainingAmount,
-            priority
-          });
-        });
-        
-        if (!isValid) return;
-        if (goals.length === 0) {
-          alert('No valid goals to submit');
-          return;
-        }
-        
-        // 3. Prepare and send data
-        const payload = {
-          income,
-          goals
-        };
-        
-        console.log('Submitting suggestions:', payload);
-        
-        $.ajax({
-          url: '/home/suggestion',
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify(payload),
-          success: function(response) {
-            alert('Suggestions received successfully!');
-            console.log('Server response:', response);
-          },
-          error: function(xhr) {
-            alert('Error: ' + (xhr.responseText || 'Request failed'));
-            console.error('Error details:', xhr);
-          }
-        });
-        
-      } catch (e) {
-        alert('Error: ' + e.message);
-        console.error('Submission error:', e);
-      }
-    }
+        # Encode categorical variables
+        data['City_Tier'] = data['City_Tier'].map({'Tier_1': 1, 'Tier_2': 2, 'Tier_3': 3})
+        data['Occupation'] = data['Occupation'].astype('category').cat.codes
 
-    // Rest of your existing JavaScript remains unchanged
-  </script>
-</body>
-</html>
+        # Drop rows with NaN in required columns
+        data = data.dropna(subset=input_columns + output_columns)
+
+        X = data[input_columns]
+        y = data[output_columns]
+
+        print(f"Training on {len(X)} samples with {len(output_columns)} output labels...")
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
+        model.fit(X_train, y_train)
+
+        # Evaluation
+        y_pred = model.predict(X_test)
+        mse = mean_squared_error(y_test, y_pred)
+        rmse = np.sqrt(mse)
+        r2 = r2_score(y_test, y_pred)
+        print(f"\n=== Model Training Complete! ===")
+        print(f"RMSE:     {rmse:.2f}")
+        print(f"R² Score: {r2:.4f}")
+
+        # Save the model
+        model_path = os.path.join(os.path.dirname(__file__), 'model.pkl')
+        joblib.dump(model, model_path)
+        print(f"Model saved as: {model_path}")
+
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Please ensure 'sample.csv' is in the same directory as this script.")
+    except Exception as e:
+        import traceback
+        print(f"An error occurred: {e}")
+        traceback.print_exc()
+
+if __name__ == '__main__':
+    train_model()
