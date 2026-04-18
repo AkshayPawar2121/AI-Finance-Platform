@@ -29,6 +29,7 @@ import com.nextgendemo.demo.Home.ExpenseTracker.Entity.ExpenseTrack;
 import com.nextgendemo.demo.Home.ExpenseTracker.Service.ExpenseService;
 import com.nextgendemo.demo.Home.GoalSetter.Entity.AmountSet;
 import com.nextgendemo.demo.Home.GoalSetter.Service.AmountSetService;
+import com.nextgendemo.demo.Home.GoalSetter.Service.GoalAllocationService;
 import com.nextgendemo.demo.Register.Service.RegisterService;
 import com.nextgendemo.demo.Register.Service.RegisterService.RegistrationResult;
 
@@ -49,6 +50,9 @@ public class MainController {
     private BudgetService bs;
     @Autowired
     private ExpenseService es;
+    @Autowired
+    private GoalAllocationService goalAllocationService;
+
     // Home Page Mapping
     @GetMapping("/")
     public String Index() {
@@ -444,8 +448,8 @@ public class MainController {
 
 
 
-	    
-	    // delete the expense 
+
+	    // delete the expense
 	    @DeleteMapping("/home/expensetracker/delete/{id}")
 	    @ResponseBody
 	    public Map<String, Boolean> deleteExpense(@PathVariable Long id) {
@@ -459,5 +463,63 @@ public class MainController {
 	        return response;
 	    }
 
- 
+
+	    // ============================================
+	    // AI GOAL ALLOCATION SYSTEM (Q-Learning RL)
+	    // ============================================
+
+	    /**
+	     * Get AI-powered savings allocation suggestions using Q-learning RL model
+	     * This endpoint calls the Python API on port 5001
+	     */
+	    @PostMapping("/home/goals/suggest")
+	    @ResponseBody
+	    public Map<String, Object> getGoalAllocationSuggestions(
+	            @RequestParam("savings") double availableSavings,
+	            HttpSession session) {
+
+	        String userName = (String) session.getAttribute("userName");
+
+	        if (userName == null) {
+	            Map<String, Object> response = new HashMap<>();
+	            response.put("success", false);
+	            response.put("error", "User not logged in");
+	            return response;
+	        }
+
+	        // Call the Goal Allocation Service which uses Q-learning AI model
+	        return goalAllocationService.getSuggestions(userName, availableSavings);
+	    }
+
+	    /**
+	     * Apply AI allocation suggestion to user's goals
+	     */
+	    @PostMapping("/home/goals/apply-suggestion")
+	    @ResponseBody
+	    public Map<String, Object> applyAllocationSuggestion(
+	            @RequestBody Map<String, Double> allocation,
+	            HttpSession session) {
+
+	        Map<String, Object> response = new HashMap<>();
+	        String userName = (String) session.getAttribute("userName");
+
+	        if (userName == null) {
+	            response.put("success", false);
+	            response.put("error", "User not logged in");
+	            return response;
+	        }
+
+	        boolean success = goalAllocationService.applySuggestion(userName, allocation);
+	        response.put("success", success);
+
+	        if (success) {
+	            response.put("message", "Allocation applied successfully to your goals!");
+	        } else {
+	            response.put("error", "Failed to apply allocation");
+	        }
+
+	        return response;
+	    }
+
+
 }
