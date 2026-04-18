@@ -321,11 +321,11 @@
                                     <td>${goal.target - (goal.remainingAmount != null ? goal.remainingAmount : 0)}</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm rounded-pill"
-                                            onclick="openPayModal('${goal.goalName}', ${goal.target - (goal.remainingAmount != null ? goal.remainingAmount : 0)}, ${goal.id})">
+                                            onclick="openPayModal('${goal.goalName}', '${goal.target - (goal.remainingAmount != null ? goal.remainingAmount : 0)}', '${goal.id}')">
                                             Pay
                                         </button>
                                         <button class="btn btn-outline-danger btn-sm rounded-pill ms-2"
-                                            onclick="deleteGoal(${goal.id})">
+                                            onclick="deleteGoal('${goal.id}')">
                                             Delete
                                         </button>
                                     </td>
@@ -367,9 +367,9 @@
                                         <td>${budget.budget_amount}</td>
                                         <td>
                                             <button class="btn btn-sm btn-primary rounded-pill"
-                                                onclick="openBudgetPayModal(${budget.budget_amount}, ${budget.id})">Edit</button>
+                                                onclick="openBudgetPayModal('${budget.budget_amount}', '${budget.id}')">Edit</button>
                                             <button class="btn btn-sm btn-outline-danger rounded-pill ms-2"
-                                                onclick="deleteBudget(${budget.id})">Delete</button>
+                                                onclick="deleteBudget('${budget.id}')">Delete</button>
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -439,14 +439,26 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label text-muted small d-block mb-3">Exclusions</label>
+                                <label class="form-label text-muted small d-block mb-3">Lifestyle Exclusions (check to
+                                    redirect to savings)</label>
                                 <div class="row g-3">
                                     <div class="col-md-3">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="own_house"
                                                 name="own_house">
-                                            <label class="form-check-label small text-muted" for="own_house">Own
-                                                House</label>
+                                            <label class="form-check-label small text-muted" for="own_house">Own House
+                                                <small class="d-block" style="font-size:0.7rem;">(no
+                                                    rent)</small></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="self_sufficient_food"
+                                                name="self_sufficient_food">
+                                            <label class="form-check-label small text-muted"
+                                                for="self_sufficient_food">Self-Sufficient Food
+                                                <small class="d-block" style="font-size:0.7rem;">(no
+                                                    groceries)</small></label>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -454,7 +466,8 @@
                                             <input type="checkbox" class="form-check-input" id="no_transport"
                                                 name="no_transport">
                                             <label class="form-check-label small text-muted" for="no_transport">No
-                                                Transport</label>
+                                                Transport
+                                                <small class="d-block" style="font-size:0.7rem;"></small></label>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -462,7 +475,8 @@
                                             <input type="checkbox" class="form-check-input" id="no_eating_out"
                                                 name="no_eating_out">
                                             <label class="form-check-label small text-muted" for="no_eating_out">No
-                                                Eating Out</label>
+                                                Eating Out
+                                                <small class="d-block" style="font-size:0.7rem;"></small></label>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -470,14 +484,42 @@
                                             <input type="checkbox" class="form-check-input" id="no_entertainment"
                                                 name="no_entertainment">
                                             <label class="form-check-label small text-muted" for="no_entertainment">No
-                                                Ent.</label>
+                                                Entertainment
+                                                <small class="d-block" style="font-size:0.7rem;"></small></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="no_utilities"
+                                                name="no_utilities">
+                                            <label class="form-check-label small text-muted" for="no_utilities">No
+                                                Utilities
+                                                <small class="d-block" style="font-size:0.7rem;"></small></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="no_healthcare"
+                                                name="no_healthcare">
+                                            <label class="form-check-label small text-muted" for="no_healthcare">No
+                                                Healthcare
+                                                <small class="d-block" style="font-size:0.7rem;"></small></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="no_education"
+                                                name="no_education">
+                                            <label class="form-check-label small text-muted" for="no_education">No
+                                                Education
+                                                <small class="d-block" style="font-size:0.7rem;"></small></label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="text-center">
-                                <button type="submit" class="btn btn-primary rounded-pill px-5 py-2">
+                                <button type="submit" class="btn btn-primary rounded-pill px-5 py-2" id="predictBtn">
                                     <i class="bi bi-stars"></i> Generate Prediction
                                 </button>
                             </div>
@@ -512,9 +554,9 @@
                                     <td>${expense.expenseAmount}</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm rounded-pill"
-                                            onclick="openExpensePayModal(${expense.expenseAmount}, ${expense.id})">Edit</button>
+                                            onclick="openExpensePayModal('${expense.expenseAmount}', '${expense.id}')">Edit</button>
                                         <button class="btn btn-outline-danger btn-sm rounded-pill ms-2"
-                                            onclick="deleteExpense(${expense.id})">Delete</button>
+                                            onclick="deleteExpense('${expense.id}')">Delete</button>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -536,14 +578,15 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="goalForm" action="/home/goalsetter" method="post">
+                        <form id="goalForm">
                             <div class="mb-3">
                                 <label class="form-label">Goal Name</label>
-                                <input type="text" class="form-control" name="goalname" required>
+                                <input type="text" class="form-control" id="goalname" name="goalname" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Target Amount</label>
-                                <input type="number" class="form-control" name="target" required>
+                                <input type="number" class="form-control" id="goalTarget" name="target" min="1"
+                                    required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill">Create Goal</button>
                         </form>
@@ -561,14 +604,15 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="budgetForm" action="/home/budgetplanner" method="post">
+                        <form id="budgetForm">
                             <div class="mb-3">
                                 <label class="form-label">Budget Name</label>
-                                <input type="text" class="form-control" name="budgetName" required>
+                                <input type="text" class="form-control" id="budgetName" name="budgetName" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Amount</label>
-                                <input type="number" class="form-control" name="budgetAmount" required>
+                                <input type="number" class="form-control" id="newBudgetAmount" name="budgetAmount"
+                                    min="1" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill">Save Budget</button>
                         </form>
@@ -586,14 +630,15 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="expenseForm" action="/home/expensetracker" method="post">
+                        <form id="expenseForm">
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <input type="text" class="form-control" name="expenseName" required>
+                                <input type="text" class="form-control" id="expenseName" name="expenseName" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Amount</label>
-                                <input type="number" class="form-control" name="expenseAmount" required>
+                                <input type="number" class="form-control" id="newExpenseAmount" name="expenseAmount"
+                                    min="1" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill">Add Expense</button>
                         </form>
@@ -611,19 +656,20 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="paymentForm" action="/home/goalsetter/payment" method="post">
+                        <form id="paymentForm">
                             <input type="hidden" id="goalId" name="goalId">
                             <div class="mb-3">
                                 <label class="form-label">Goal</label>
                                 <input type="text" class="form-control" id="modalGoalName" readonly>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Remaining</label>
+                                <label class="form-label">Amount Paid So Far</label>
                                 <input type="text" class="form-control" id="modalRemainingAmount" readonly>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Amount to Pay</label>
-                                <input type="number" class="form-control" name="paymentAmount" required>
+                                <label class="form-label">Amount to Contribute</label>
+                                <input type="number" class="form-control" id="paymentAmount" name="paymentAmount"
+                                    min="1" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill">Confirm Payment</button>
                         </form>
@@ -640,14 +686,14 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="paymentBudgetForm" action="/home/budgetplanner/payment" method="post">
+                        <form id="paymentBudgetForm">
                             <input type="hidden" id="budgetId" name="budgetId">
                             <div class="mb-3">
                                 <label class="form-label">New Amount</label>
-                                <input type="number" class="form-control" id="budgetAmount" name="budgetAmount"
-                                    step="0.01" required>
+                                <input type="number" class="form-control" id="budgetAmount" name="budgetAmount" step="1"
+                                    min="1" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Update</button>
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Update Budget</button>
                         </form>
                     </div>
                 </div>
@@ -662,27 +708,28 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="paymentExpenseForm" action="/home/expensetracker/payment" method="post">
+                        <form id="paymentExpenseForm">
                             <input type="hidden" id="expenseId" name="expenseId">
                             <div class="mb-3">
                                 <label class="form-label">New Amount</label>
                                 <input type="number" class="form-control" id="expenseAmount" name="expenseAmount"
-                                    step="0.01" required>
+                                    step="1" min="1" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Update</button>
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Update Expense</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Prediction Result Modal (Custom for PDF/Print) -->
-        <div id="responseModal" class="modal" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <!-- Prediction Result Modal -->
+        <div id="responseModal" class="modal fade" tabindex="-1" aria-labelledby="responseModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Prediction Result</h5>
-                        <button type="button" class="btn-close" onclick="closeModal()"></button>
+                        <h5 class="modal-title" id="responseModalLabel">AI Prediction Result</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div id="modalContent"></div>
@@ -692,13 +739,12 @@
                             PDF</button>
                         <button onclick="printTable()" class="btn btn-primary btn-sm"><i class="bi bi-printer"></i>
                             Print</button>
-                        <button onclick="closeModal()" class="btn btn-outline-secondary btn-sm">Close</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                            data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="modalOverlay"
-            style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:999;"></div>
 
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -706,13 +752,29 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
-            // Section Switcher
+            // ================================================
+            // SECTION SWITCHER — persists active tab in localStorage
+            // ================================================
             function showSection(sectionId, linkId) {
                 document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active-section'));
                 document.getElementById(sectionId).classList.add('active-section');
                 document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
                 document.getElementById(linkId).classList.add('active');
+                // Save active tab so page reloads restore it
+                localStorage.setItem('activeSection', sectionId);
+                localStorage.setItem('activeLinkId', linkId);
             }
+
+            // Restore active tab on page load
+            (function restoreTab() {
+                const savedSection = localStorage.getItem('activeSection');
+                const savedLink = localStorage.getItem('activeLinkId');
+                if (savedSection && savedLink && document.getElementById(savedSection) && document.getElementById(savedLink)) {
+                    showSection(savedSection, savedLink);
+                } else {
+                    showSection('goal-setter', 'goal-setter-link');
+                }
+            })();
 
             document.getElementById('goal-setter-link').addEventListener('click', (e) => {
                 e.preventDefault();
@@ -750,28 +812,212 @@
                 modal.show();
             }
 
-            // Delete Functions (Preserved IDs/Logic needed)
+            // ================================================
+            // DELETE FUNCTIONS — use DELETE method + path variable
+            // ================================================
             function deleteGoal(id) {
                 if (confirm('Are you sure you want to delete this goal?')) {
-                    // Assuming backend expects a GET request or form submission. Using a form for safety if not specified, 
-                    // but usually legacy apps use a link. I will assume a form post or simple window.location if that was the original way.
-                    // Re-checking original file: "onclick="deleteBudget(${budget.id})"" was there. 
-                    // Wait, I saw "onclick="deleteBudget(${budget.id})"" but I didn't see the implementation in the snippet.
-                    // I must safeguard this. I'll create a hidden form to submit deletes to be standard, or just fetch.
-                    // Let's use fetch with reload.
-                    fetch('/home/goalsetter/delete?id=' + id, { method: 'GET' }).then(() => window.location.reload());
+                    fetch('/home/goalsetter/delete/' + id, { method: 'DELETE' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                alert('Failed to delete goal. Please try again.');
+                            }
+                        })
+                        .catch(() => alert('Error deleting goal. Please try again.'));
                 }
             }
             function deleteBudget(id) {
-                if (confirm('Delete this budget?')) fetch('/home/budgetplanner/delete?id=' + id).then(() => window.location.reload());
+                if (confirm('Delete this budget?')) {
+                    fetch('/home/budgetplanner/delete/' + id, { method: 'DELETE' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                alert('Failed to delete budget. Please try again.');
+                            }
+                        })
+                        .catch(() => alert('Error deleting budget. Please try again.'));
+                }
             }
             function deleteExpense(id) {
-                if (confirm('Delete this expense?')) fetch('/home/expensetracker/delete?id=' + id).then(() => window.location.reload());
+                if (confirm('Delete this expense?')) {
+                    fetch('/home/expensetracker/delete/' + id, { method: 'DELETE' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                alert('Failed to delete expense. Please try again.');
+                            }
+                        })
+                        .catch(() => alert('Error deleting expense. Please try again.'));
+                }
             }
 
-            // Prediction Logic
+            // ================================================
+            // PAYMENT FORM HANDLERS — use AJAX instead of HTML form POST
+            // ================================================
+            document.getElementById('paymentForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const goalId = document.getElementById('goalId').value;
+                const paymentAmount = document.getElementById('paymentAmount').value;
+                const formData = new URLSearchParams();
+                formData.append('goalId', goalId);
+                formData.append('paymentAmount', paymentAmount);
+
+                fetch('/home/goalsetter/payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+                            window.location.reload();
+                        } else {
+                            alert('Payment failed: ' + (data.error || 'Unknown error'));
+                        }
+                    })
+                    .catch(() => alert('Error processing payment. Please try again.'));
+            });
+
+            document.getElementById('paymentBudgetForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const budgetId = document.getElementById('budgetId').value;
+                const budgetAmount = document.getElementById('budgetAmount').value;
+                const formData = new URLSearchParams();
+                formData.append('budgetId', budgetId);
+                formData.append('budgetAmount', budgetAmount);
+
+                fetch('/home/budgetplanner/payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('paymentBudgetModal')).hide();
+                            window.location.reload();
+                        } else {
+                            alert('Update failed: ' + (data.error || 'Unknown error'));
+                        }
+                    })
+                    .catch(() => alert('Error updating budget. Please try again.'));
+            });
+
+            // ================================================
+            // CREATE FORM HANDLERS — AJAX (no page redirect, tab preserved)
+            // ================================================
+            document.getElementById('goalForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new URLSearchParams();
+                formData.append('goalname', document.getElementById('goalname').value);
+                formData.append('target', document.getElementById('goalTarget').value);
+
+                fetch('/home/goalsetter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                })
+                    .then(response => {
+                        if (response.ok || response.redirected) {
+                            bootstrap.Modal.getInstance(document.getElementById('addGoalModal')).hide();
+                            this.reset();
+                            window.location.reload();
+                        } else {
+                            alert('Failed to create goal. Please try again.');
+                        }
+                    })
+                    .catch(() => alert('Error creating goal. Please try again.'));
+            });
+
+            document.getElementById('budgetForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new URLSearchParams();
+                formData.append('budgetName', document.getElementById('budgetName').value);
+                formData.append('budgetAmount', document.getElementById('newBudgetAmount').value);
+
+                fetch('/home/budgetplanner', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                })
+                    .then(response => {
+                        if (response.ok || response.redirected) {
+                            bootstrap.Modal.getInstance(document.getElementById('addBudgetModal')).hide();
+                            this.reset();
+                            window.location.reload();
+                        } else {
+                            alert('Failed to create budget. Please try again.');
+                        }
+                    })
+                    .catch(() => alert('Error creating budget. Please try again.'));
+            });
+
+            document.getElementById('expenseForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new URLSearchParams();
+                formData.append('expenseName', document.getElementById('expenseName').value);
+                formData.append('expenseAmount', document.getElementById('newExpenseAmount').value);
+
+                fetch('/home/expensetracker', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                })
+                    .then(response => {
+                        if (response.ok || response.redirected) {
+                            bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+                            this.reset();
+                            window.location.reload();
+                        } else {
+                            alert('Failed to add expense. Please try again.');
+                        }
+                    })
+                    .catch(() => alert('Error adding expense. Please try again.'));
+            });
+
+            document.getElementById('paymentExpenseForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const expenseId = document.getElementById('expenseId').value;
+                const expenseAmount = document.getElementById('expenseAmount').value;
+                const formData = new URLSearchParams();
+                formData.append('expenseId', expenseId);
+                formData.append('expenseAmount', expenseAmount);
+
+                fetch('/home/expensetracker/payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('paymentExpenseModal')).hide();
+                            window.location.reload();
+                        } else {
+                            alert('Update failed: ' + (data.error || 'Unknown error'));
+                        }
+                    })
+                    .catch(() => alert('Error updating expense. Please try again.'));
+            });
+
+            // ================================================
+            // AI PREDICTION LOGIC
+            // ================================================
             document.getElementById('predictForm').addEventListener('submit', function (event) {
                 event.preventDefault();
+                // Show loading state
+                const btn = document.getElementById('predictBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Predicting...';
+
                 const formData = new URLSearchParams(new FormData(this)).toString();
 
                 fetch('/home/budgetplanner/predict', {
@@ -781,58 +1027,89 @@
                 })
                     .then(response => response.json())
                     .then(data => {
+                        document.getElementById('predictBtn').disabled = false;
+                        document.getElementById('predictBtn').innerHTML = '<i class="bi bi-stars"></i> Generate Prediction';
                         if (data.success) {
                             const roundedData = roundValues(data.data);
                             showTable(roundedData);
-                            openModal();
+                            const resultModal = new bootstrap.Modal(document.getElementById('responseModal'));
+                            resultModal.show();
                         } else {
-                            alert('Error: ' + (data.error || 'Unknown error occurred'));
+                            alert('Prediction Error: ' + (data.error || 'Could not connect to the AI model. Make sure the Python API is running on port 5000.'));
                         }
                     })
                     .catch(error => {
+                        document.getElementById('predictBtn').disabled = false;
+                        document.getElementById('predictBtn').innerHTML = '<i class="bi bi-stars"></i> Generate Prediction';
                         console.error('Error:', error);
-                        alert('Error processing request' + error);
+                        alert('Network error: Could not reach the prediction service. Please ensure the Python API is running.');
                     });
             });
 
+            // Store prediction data globally for PDF export
+            let _lastPredictionData = {};
+            let _lastPredictionInput = {};
+
             function showTable(data) {
+                _lastPredictionData = data;
                 const modalContent = document.getElementById('modalContent');
-                modalContent.innerHTML = '';
-                const table = document.createElement('table');
-                table.className = 'table table-bordered table-striped';
 
-                const thead = document.createElement('thead');
-                thead.innerHTML = `<tr><th>Name</th><th>Amount</th></tr>`;
-                table.appendChild(thead);
+                // Category display config
+                const categoryConfig = {
+                    'Rent': { icon: '\uD83C\uDFE0', label: 'Rent / Housing' },
+                    'Groceries': { icon: '\uD83D\uDED2', label: 'Groceries' },
+                    'Transport': { icon: '\uD83D\uDE97', label: 'Transport' },
+                    'Eating_Out': { icon: '\uD83C\uDF7D', label: 'Eating Out' },
+                    'Entertainment': { icon: '\uD83C\uDFAD', label: 'Entertainment' },
+                    'Utilities': { icon: '\uD83D\uDCA1', label: 'Utilities' },
+                    'Healthcare': { icon: '\uD83C\uDFE5', label: 'Healthcare' },
+                    'Education': { icon: '\uD83D\uDCDA', label: 'Education' },
+                    'Desired_Savings': { icon: '\uD83D\uDCB0', label: 'Recommended Savings' }
+                };
 
-                const tbody = document.createElement('tbody');
-                Object.entries(data).forEach(([key, value]) => {
-                    const row = document.createElement('tr');
-                    const keyCell = document.createElement('td');
-                    keyCell.textContent = key;
-                    row.appendChild(keyCell);
-
-                    const valueCell = document.createElement('td');
-                    valueCell.textContent = typeof value === 'object' ? JSON.stringify(value) : value;
-                    row.appendChild(valueCell);
-                    tbody.appendChild(row);
+                var rowsHtml = '';
+                Object.entries(data).forEach(function (entry) {
+                    var key = entry[0], value = entry[1];
+                    var cfg = categoryConfig[key] || { icon: '\uD83D\uDCCA', label: key.replace(/_/g, ' ') };
+                    var isSavings = key === 'Desired_Savings';
+                    var formatted = '\u20B9 ' + Number(value).toLocaleString('en-IN');
+                    var rowStyle = isSavings ? 'background:linear-gradient(90deg,#0f4c3a,#1a7a5e);color:#fff;font-weight:700;' : '';
+                    var amtContent = isSavings ? '<span style="color:#4fffb0">' + formatted + '</span>' : formatted;
+                    rowsHtml += '<tr style="' + rowStyle + '">' +
+                        '<td style="padding:12px 16px;border-bottom:1px solid #2a2a3a;">' +
+                        '<span style="font-size:1.1rem;margin-right:8px;">' + cfg.icon + '</span>' + cfg.label +
+                        '</td>' +
+                        '<td style="padding:12px 16px;text-align:right;font-weight:600;border-bottom:1px solid #2a2a3a;font-family:monospace;font-size:1rem;">' +
+                        amtContent + '</td></tr>';
                 });
-                table.appendChild(tbody);
-                modalContent.appendChild(table);
+
+                modalContent.innerHTML =
+                    '<div style="font-family:\'Inter\',sans-serif;color:#e8eaed;">' +
+                    '<div style="display:flex;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #2a2a3a;">' +
+                    '<div style="background:linear-gradient(135deg,#4fffb0,#00b4ff);width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-right:14px;flex-shrink:0;">\uD83E\uDD16</div>' +
+                    '<div>' +
+                    '<div style="font-size:1.1rem;font-weight:700;color:#fff;">AI Budget Allocation</div>' +
+                    '<div style="font-size:0.8rem;color:#9aa0a6;margin-top:2px;">Personalized monthly spending forecast</div>' +
+                    '</div></div>' +
+                    '<table style="width:100%;border-collapse:collapse;">' +
+                    '<thead><tr style="background:#1a1a2e;">' +
+                    '<th style="padding:12px 16px;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#9aa0a6;border-bottom:2px solid #4fffb0;">Category</th>' +
+                    '<th style="padding:12px 16px;text-align:right;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#9aa0a6;border-bottom:2px solid #4fffb0;">Recommended Amount</th>' +
+                    '</tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+                    '<p style="font-size:0.72rem;color:#5f6368;margin-top:16px;text-align:center;">' +
+                    '\u26A0\uFE0F This is an AI-generated estimate based on your financial profile. Actual allocations may vary.' +
+                    '</p></div>';
             }
 
+            // Legacy functions kept for backwards compatibility (now handled by Bootstrap Modal)
             function openModal() {
-                const modal = document.getElementById('responseModal');
-                modal.style.display = 'block';
-                modal.classList.add('show');
-                document.getElementById('modalOverlay').style.display = 'block';
+                // No-op: handled by Bootstrap Modal API in the fetch callback
             }
 
             function closeModal() {
-                const modal = document.getElementById('responseModal');
-                modal.style.display = 'none';
-                modal.classList.remove('show');
-                document.getElementById('modalOverlay').style.display = 'none';
+                const el = document.getElementById('responseModal');
+                const m = bootstrap.Modal.getInstance(el);
+                if (m) m.hide();
             }
 
             function roundValues(data) {
@@ -844,27 +1121,298 @@
                 return data;
             }
 
-            // PDF & Print
-            async function downloadAsPDF() {
-                const { jsPDF } = window.jspdf;
-                const element = document.getElementById('modalContent');
-                const canvas = await html2canvas(element);
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF();
-                pdf.addImage(imgData, 'PNG', 10, 10, 180, 0);
-                pdf.save('prediction-result.pdf');
+            function downloadAsPDF() {
+                var jsPDFLib = window.jspdf;
+                var doc = new jsPDFLib.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+                var pageW = 210;
+                var pageH = 297;
+                var mL = 16;   // left margin
+                var mR = 16;   // right margin
+                var cW = pageW - mL - mR; // content width
+                var rX = pageW - mR;      // right edge of content
+
+                // ── Safe Indian number formatter (ASCII only, no Unicode spaces) ────
+                function fmtINR(n) {
+                    n = Math.round(Number(n));
+                    if (isNaN(n)) return 'Rs. 0';
+                    var s = Math.abs(n).toString();
+                    if (s.length <= 3) return 'Rs. ' + s;
+                    var last3 = s.slice(-3);
+                    var rest = s.slice(0, -3);
+                    var parts = [];
+                    while (rest.length > 2) { parts.unshift(rest.slice(-2)); rest = rest.slice(0, -2); }
+                    if (rest.length) parts.unshift(rest);
+                    return 'Rs. ' + parts.join(',') + ',' + last3;
+                }
+
+                // ── Date (ASCII-safe) ─────────────────────────────────────────────
+                var d = new Date();
+                var mo = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                var dateStr = d.getDate() + ' ' + mo[d.getMonth()] + ' ' + d.getFullYear();
+
+                // ── Ordered label map ─────────────────────────────────────────────
+                var labelMap = {
+                    'Rent': 'Rent / Housing', 'Groceries': 'Groceries', 'Transport': 'Transport',
+                    'Eating_Out': 'Eating Out', 'Entertainment': 'Entertainment', 'Utilities': 'Utilities',
+                    'Healthcare': 'Healthcare', 'Education': 'Education', 'Desired_Savings': 'Recommended Savings'
+                };
+                var order = ['Rent', 'Groceries', 'Transport', 'Eating_Out', 'Entertainment', 'Utilities', 'Healthcare', 'Education', 'Desired_Savings'];
+                var data = _lastPredictionData;
+                var sortedEntries = [];
+                order.forEach(function (k) { if (data[k] !== undefined) sortedEntries.push([k, data[k]]); });
+                Object.keys(data).forEach(function (k) { if (order.indexOf(k) < 0) sortedEntries.push([k, data[k]]); });
+
+                // ══════════════════════════════════════════════════════════════════
+                // HEADER
+                // ══════════════════════════════════════════════════════════════════
+                // Main header bar
+                doc.setFillColor(17, 45, 60);
+                doc.rect(0, 0, pageW, 40, 'F');
+                // Thin emerald accent strip at bottom of header
+                doc.setFillColor(16, 185, 129);
+                doc.rect(0, 37, pageW, 3, 'F');
+
+                // Logo / brand
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(19);
+                doc.setTextColor(255, 255, 255);
+                doc.text('NextGen Finance', mL, 17);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9.5);
+                doc.setTextColor(130, 200, 170);
+                doc.text('AI Financial Budget Report', mL, 26);
+
+                doc.setFontSize(8);
+                doc.setTextColor(100, 160, 140);
+                doc.text('Generated: ' + dateStr, mL, 33);
+
+                // Right-side metadata
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(8);
+                doc.setTextColor(200, 230, 215);
+                doc.text('PERSONAL USE ONLY', rX, 17, { align: 'right' });
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(100, 160, 140);
+                doc.text('AI-generated estimate', rX, 24, { align: 'right' });
+
+                // ══════════════════════════════════════════════════════════════════
+                // BODY
+                // ══════════════════════════════════════════════════════════════════
+                var y = 52;
+
+                // Section heading
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor(20, 40, 55);
+                doc.text('Monthly Budget Allocation', mL, y);
+                y += 2;
+                // Short accent underline
+                doc.setDrawColor(16, 185, 129);
+                doc.setLineWidth(0.7);
+                doc.line(mL, y, mL + 55, y);
+                y += 6;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(100, 110, 125);
+                doc.text('Personalized spending forecast based on your financial profile', mL, y);
+                y += 8;
+
+                // ── Column header row ─────────────────────────────────────────────
+                var rowH = 9;
+                doc.setFillColor(30, 41, 59);
+                doc.rect(mL, y, cW, rowH + 1, 'F');
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(7.5);
+                doc.setTextColor(148, 163, 184);
+                doc.text('EXPENSE CATEGORY', mL + 5, y + 6.2);
+                doc.text('AMOUNT (Rs.)', rX - 5, y + 6.2, { align: 'right' });
+                y += rowH + 2;
+
+                // ── Data rows (skip Desired_Savings) ─────────────────────────────
+                var totalExpenses = 0;
+                var savingsAmount = 0;
+                var rowIdx = 0;
+
+                sortedEntries.forEach(function (pair) {
+                    var key = pair[0];
+                    var value = pair[1];
+                    var amount = Number(value);
+                    var label = labelMap[key] || key.replace(/_/g, ' ');
+
+                    if (key === 'Desired_Savings') {
+                        savingsAmount = amount;
+                        return; // draw after total
+                    }
+
+                    totalExpenses += amount;
+
+                    // Alternating background
+                    if (rowIdx % 2 === 0) {
+                        doc.setFillColor(247, 249, 252);
+                        doc.rect(mL, y, cW, rowH, 'F');
+                    } else {
+                        doc.setFillColor(255, 255, 255);
+                        doc.rect(mL, y, cW, rowH, 'F');
+                    }
+
+                    // Left-side category indicator bar
+                    doc.setFillColor(16, 185, 129);
+                    doc.rect(mL, y, 2.5, rowH, 'F');
+
+                    // Category label
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(9);
+                    doc.setTextColor(35, 50, 65);
+                    doc.text(label, mL + 7, y + 6);
+
+                    // Amount — right-aligned, bold
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(20, 30, 50);
+                    doc.text(fmtINR(amount), rX - 5, y + 6, { align: 'right' });
+
+                    // Bottom rule
+                    doc.setDrawColor(220, 228, 236);
+                    doc.setLineWidth(0.15);
+                    doc.line(mL, y + rowH, rX, y + rowH);
+
+                    y += rowH;
+                    rowIdx++;
+                });
+
+                // ── Total Expenses bar ────────────────────────────────────────────
+                y += 5;
+                doc.setFillColor(30, 64, 175);
+                doc.roundedRect(mL, y, cW, 11, 1.5, 1.5, 'F');
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9.5);
+                doc.setTextColor(255, 255, 255);
+                doc.text('Total Projected Expenses', mL + 6, y + 7.5);
+                doc.text(fmtINR(totalExpenses), rX - 6, y + 7.5, { align: 'right' });
+                y += 15;
+
+                // ── Recommended Savings bar ───────────────────────────────────────
+                if (savingsAmount > 0) {
+                    // Fill light green
+                    doc.setFillColor(236, 253, 245);
+                    doc.roundedRect(mL, y, cW, 11, 1.5, 1.5, 'F');
+                    // Green border
+                    doc.setDrawColor(16, 185, 129);
+                    doc.setLineWidth(0.6);
+                    doc.roundedRect(mL, y, cW, 11, 1.5, 1.5, 'S');
+                    // Text
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(9.5);
+                    doc.setTextColor(6, 95, 70);
+                    doc.text('Recommended Savings', mL + 6, y + 7.5);
+                    doc.text(fmtINR(savingsAmount), rX - 6, y + 7.5, { align: 'right' });
+                    y += 15;
+                }
+
+                // ── Disclaimer ────────────────────────────────────────────────────
+                y += 6;
+                doc.setDrawColor(215, 222, 232);
+                doc.setLineWidth(0.25);
+                doc.line(mL, y, rX, y);
+                y += 6;
+
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(7.5);
+                doc.setTextColor(130, 140, 155);
+                doc.text('This report is generated by the NextGen Finance AI model based on the inputs provided.', pageW / 2, y, { align: 'center' });
+                doc.text('Figures are projections only. Consult a certified financial advisor for guidance.', pageW / 2, y + 5, { align: 'center' });
+
+                // ── Page footer ───────────────────────────────────────────────────
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(7);
+                doc.setTextColor(170, 178, 190);
+                doc.text('NextGen Finance Platform  |  AI Budget Report  |  Page 1 of 1', pageW / 2, pageH - 9, { align: 'center' });
+
+                // Bottom dark bar
+                doc.setFillColor(17, 45, 60);
+                doc.rect(0, pageH - 4, pageW, 4, 'F');
+
+                doc.save('NextGenFinance-Budget-' + dateStr.replace(/ /g, '-') + '.pdf');
             }
 
+
             function printTable() {
-                const printWindow = window.open('', '', 'height=600,width=800');
-                const element = document.getElementById('modalContent').innerHTML;
-                printWindow.document.write('<html><head><title>Print</title>');
-                printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">');
-                printWindow.document.write('</head><body>');
-                printWindow.document.write(element);
-                printWindow.document.write('</body></html>');
+                var data = _lastPredictionData;
+                var labelMap = {
+                    'Rent': 'Rent / Housing', 'Groceries': 'Groceries', 'Transport': 'Transport',
+                    'Eating_Out': 'Eating Out', 'Entertainment': 'Entertainment', 'Utilities': 'Utilities',
+                    'Healthcare': 'Healthcare', 'Education': 'Education', 'Desired_Savings': 'Recommended Savings'
+                };
+                var order = ['Rent', 'Groceries', 'Transport', 'Eating_Out', 'Entertainment', 'Utilities', 'Healthcare', 'Education'];
+
+                var totalExpenses = 0;
+                var rows = '';
+                var rowIdx = 0;
+
+                function fmt(n) {
+                    n = Math.round(Number(n));
+                    if (isNaN(n)) return 'Rs. 0';
+                    var s = Math.abs(n).toString();
+                    if (s.length <= 3) return 'Rs. ' + s;
+                    var last3 = s.slice(-3);
+                    var rest = s.slice(0, -3);
+                    var parts = [];
+                    while (rest.length > 2) { parts.unshift(rest.slice(-2)); rest = rest.slice(0, -2); }
+                    if (rest.length) parts.unshift(rest);
+                    return 'Rs. ' + parts.join(',') + ',' + last3;
+                }
+
+                // Normal expense rows
+                order.forEach(function (key) {
+                    if (data[key] !== undefined) {
+                        var amount = Number(data[key]);
+                        totalExpenses += amount;
+                        var bg = (rowIdx % 2 === 0) ? '#f8fafc' : '#ffffff';
+                        rows += '<tr style="background:' + bg + ';"><td>' + labelMap[key] + '</td><td style="text-align:right;font-weight:600;">' + fmt(amount) + '</td></tr>';
+                        rowIdx++;
+                    }
+                });
+
+                // Total Row
+                rows += '<tr style="background:#1e40af;color:#ffffff;font-weight:700;"><td style="padding:12px 14px;">TOTAL PROJECTED EXPENSES</td><td style="text-align:right;padding:12px 14px;">' + fmt(totalExpenses) + '</td></tr>';
+
+                // Savings Row (if exists)
+                if (data['Desired_Savings'] !== undefined) {
+                    var savings = Number(data['Desired_Savings']);
+                    rows += '<tr style="background:#ecfdf5;color:#065f46;font-weight:700;border:2px solid #10b981;"><td>RECOMMENDED SAVINGS</td><td style="text-align:right;">' + fmt(savings) + '</td></tr>';
+                }
+
+                var now = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+                var printWindow = window.open('', '', 'height=800,width=900');
+                var html = '<!DOCTYPE html><html><head><title>NextGen Finance Report</title>' +
+                    '<style>' +
+                    '@import url(\'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap\');' +
+                    'body{font-family:\'Inter\',sans-serif;margin:0;padding:20px;color:#1e293b;line-height:1.5;}' +
+                    '.header{background:#112d3c;color:white;padding:30px;border-radius:8px 8px 0 0;border-bottom:4px solid #10b981;}' +
+                    '.header h1{margin:0;font-size:24px;letter-spacing:-0.02em;}' +
+                    '.header p{margin:5px 0 0;font-size:13px;color:#82c8aa;opacity:0.9;}' +
+                    '.content{background:white;padding:30px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;}' +
+                    '.section-title{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:20px;display:inline-block;border-bottom:2px solid #10b981;padding-bottom:4px;}' +
+                    'table{width:100%;border-collapse:collapse;margin:20px 0;border:1px solid #e2e8f0;}' +
+                    'th{background:#1e293b;color:#f8fafc;padding:12px 15px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;}' +
+                    'td{padding:12px 15px;font-size:14px;border-bottom:1px solid #e2e8f0;}' +
+                    '.footer{margin-top:40px;text-align:center;font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:20px;}' +
+                    '@media print{body{padding:0;}.header{-webkit-print-color-adjust:exact;}}' +
+                    '</style></head><body>' +
+                    '<div class="header"><h1>NextGen Finance</h1><p>AI Budget Prediction Report &nbsp;|&nbsp; ' + now + '</p></div>' +
+                    '<div class="content">' +
+                    '<div class="section-title">Monthly Budget Allocation</div>' +
+                    '<table><thead><tr><th>EXPENSE CATEGORY</th><th style="text-align:right">RECOMMENDED AMOUNT</th></tr></thead>' +
+                    '<tbody>' + rows + '</tbody></table>' +
+                    '<div class="footer">This report was generated by the NextGen Finance AI model.<br><strong>Confidentially prepared for user</strong></div>' +
+                    '</div></body></html>';
+
+                printWindow.document.write(html);
                 printWindow.document.close();
-                printWindow.print();
+                printWindow.focus();
+                setTimeout(function () { printWindow.print(); }, 500);
             }
         </script>
     </body>

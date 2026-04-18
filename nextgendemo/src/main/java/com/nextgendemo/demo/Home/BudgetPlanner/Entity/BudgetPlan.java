@@ -13,7 +13,7 @@ public class BudgetPlan {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Long id;
 	@Column(name="UserName",nullable=false)
 	private String userName;
 	@Column(name="Budget_Name",nullable=false)
@@ -29,10 +29,10 @@ public class BudgetPlan {
 	}
 	
 	
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getBudget_name() {
@@ -55,7 +55,7 @@ public class BudgetPlan {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public BudgetPlan(int id, String budget_name, int budget_amount) {
+	public BudgetPlan(Long id, String budget_name, int budget_amount) {
 		super();
 		this.id = id;
 		this.budget_name = budget_name;

@@ -13,17 +13,17 @@ public class ExpenseTrack {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Long id;
 	@Column(name="UserName",nullable=false)
 	private String userName;
 	@Column(name="Expense_Name",nullable=false)	
 	private String expenseName;
 	@Column(name="Expense_Amount",nullable=false)
 	private int expenseAmount;
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getUserName() {
@@ -44,7 +44,7 @@ public class ExpenseTrack {
 	public void setExpenseAmount(int expenseAmount) {
 		this.expenseAmount = expenseAmount;
 	}
-	public ExpenseTrack(int id, String userName, String expenseName, int expenseAmount) {
+	public ExpenseTrack(Long id, String userName, String expenseName, int expenseAmount) {
 		super();
 		this.id = id;
 		this.userName = userName;
