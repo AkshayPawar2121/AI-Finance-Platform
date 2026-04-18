@@ -297,10 +297,16 @@
             <div id="goal-setter" class="content-section active-section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="page-title">Goal Setter</h2>
-                    <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal"
-                        data-bs-target="#addGoalModal">
-                        <i class="bi bi-plus-lg"></i> New Goal
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light rounded-pill px-4" onclick="openAISuggestionModal()"
+                            title="Get AI-powered savings allocation suggestions">
+                            <i class="bi bi-magic"></i> AI Suggestion
+                        </button>
+                        <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal"
+                            data-bs-target="#addGoalModal">
+                            <i class="bi bi-plus-lg"></i> New Goal
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-responsive">
@@ -741,6 +747,69 @@
                             Print</button>
                         <button type="button" class="btn btn-outline-secondary btn-sm"
                             data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Goal Allocation Suggestion Modal -->
+        <div class="modal fade" id="aiSuggestionModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-magic"></i> AI-Powered Goal Allocation
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="aiSuggestionInputSection">
+                            <p class="text-muted mb-3">
+                                Our Q-learning based AI model will analyze your goals and suggest the optimal way to allocate your savings.
+                            </p>
+                            <div class="mb-3">
+                                <label class="form-label">Available Savings Amount (&#8377;)</label>
+                                <input type="number" class="form-control" id="availableSavings"
+                                    placeholder="Enter amount you want to allocate" min="1" required>
+                            </div>
+                            <button onclick="getAISuggestions()" class="btn btn-primary w-100 rounded-pill">
+                                <i class="bi bi-robot"></i> Get AI Suggestions
+                            </button>
+                        </div>
+
+                        <div id="aiSuggestionResultSection" style="display: none;">
+                            <div class="alert alert-info mb-3">
+                                <i class="bi bi-lightbulb"></i>
+                                <strong>AI Recommendation (Q-Learning Model):</strong>
+                                Based on your goal priorities and remaining amounts, here's the optimal allocation.
+                            </div>
+                            <div id="suggestionTableContainer"></div>
+                            <div class="mt-3">
+                                <button onclick="applyAISuggestion()" class="btn btn-success w-100 rounded-pill">
+                                    <i class="bi bi-check-circle"></i> Apply This Allocation
+                                </button>
+                                <button onclick="resetAIModal()" class="btn btn-outline-secondary w-100 rounded-pill mt-2">
+                                    <i class="bi bi-arrow-left"></i> Try Different Amount
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="aiSuggestionLoadingSection" style="display: none;" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">AI is analyzing your goals...</p>
+                        </div>
+
+                        <div id="aiSuggestionErrorSection" style="display: none;">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <span id="aiErrorMessage"></span>
+                            </div>
+                            <button onclick="resetAIModal()" class="btn btn-outline-secondary w-100 rounded-pill">
+                                Try Again
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1414,6 +1483,165 @@
                 printWindow.focus();
                 setTimeout(function () { printWindow.print(); }, 500);
             }
+
+            // ================================================
+            // AI GOAL ALLOCATION SYSTEM (Q-Learning RL)
+            // ================================================
+
+            let currentAISuggestion = null;
+
+            function openAISuggestionModal() {
+                // Check if user has at least 2 goals
+                const goalTable = document.querySelector('#goal-setter tbody');
+                const goalRows = goalTable.querySelectorAll('tr');
+
+                if (goalRows.length < 2) {
+                    alert('You need at least 2 goals to get AI allocation suggestions.\n\nPlease create more goals first!');
+                    return;
+                }
+
+                resetAIModal();
+                const modal = new bootstrap.Modal(document.getElementById('aiSuggestionModal'));
+                modal.show();
+            }
+
+            function resetAIModal() {
+                document.getElementById('aiSuggestionInputSection').style.display = 'block';
+                document.getElementById('aiSuggestionResultSection').style.display = 'none';
+                document.getElementById('aiSuggestionLoadingSection').style.display = 'none';
+                document.getElementById('aiSuggestionErrorSection').style.display = 'none';
+                document.getElementById('availableSavings').value = '';
+                currentAISuggestion = null;
+            }
+
+            async function getAISuggestions() {
+                const savingsAmount = document.getElementById('availableSavings').value;
+
+                if (!savingsAmount || savingsAmount <= 0) {
+                    alert('Please enter a valid savings amount');
+                    return;
+                }
+
+                // Show loading
+                document.getElementById('aiSuggestionInputSection').style.display = 'none';
+                document.getElementById('aiSuggestionLoadingSection').style.display = 'block';
+
+                try {
+                    const response = await fetch('/home/goals/suggest?savings=' + savingsAmount, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        currentAISuggestion = {
+                            totalSavings: data.totalSavings,
+                            suggestions: data.suggestions
+                        };
+                        displayAISuggestions(data);
+                    } else {
+                        showAIError(data.error || 'Failed to get AI suggestions');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showAIError('Failed to connect to AI service. Make sure Python API is running on port 5001.');
+                }
+            }
+
+            function displayAISuggestions(data) {
+                document.getElementById('aiSuggestionLoadingSection').style.display = 'none';
+                document.getElementById('aiSuggestionResultSection').style.display = 'block';
+
+                const suggestions = data.suggestions;
+                let tableHTML = '<table class="table table-bordered">';
+                tableHTML += '<thead><tr>';
+                tableHTML += '<th>Goal Name</th>';
+                tableHTML += '<th>Recommended %</th>';
+                tableHTML += '<th>Recommended Amount</th>';
+                tableHTML += '</tr></thead><tbody>';
+
+                let totalPercent = 0;
+
+                for (const goalName in suggestions) {
+                    const suggestion = suggestions[goalName];
+                    const percentage = suggestion.percentage;
+                    const amount = suggestion.amount;
+
+                    totalPercent += percentage;
+
+                    tableHTML += '<tr>';
+                    tableHTML += '<td><strong>' + goalName + '</strong></td>';
+                    tableHTML += '<td><span class="badge bg-primary">' + percentage.toFixed(1) + '%</span></td>';
+                    tableHTML += '<td><strong>&#8377; ' + Math.round(amount).toLocaleString('en-IN') + '</strong></td>';
+                    tableHTML += '</tr>';
+                }
+
+                tableHTML += '</tbody>';
+                tableHTML += '<tfoot><tr class="table-active">';
+                tableHTML += '<td><strong>Total</strong></td>';
+                tableHTML += '<td><strong>' + totalPercent.toFixed(1) + '%</strong></td>';
+                tableHTML += '<td><strong>&#8377; ' + data.totalSavings.toLocaleString('en-IN') + '</strong></td>';
+                tableHTML += '</tr></tfoot>';
+                tableHTML += '</table>';
+
+                tableHTML += '<div class="alert alert-success mt-3">';
+                tableHTML += '<i class="bi bi-info-circle"></i> ';
+                tableHTML += '<strong>How it works:</strong> Our Q-learning reinforcement learning model ';
+                tableHTML += 'analyzed your goal priorities and remaining amounts to find the optimal distribution ';
+                tableHTML += 'that maximizes your chances of achieving all goals efficiently.';
+                tableHTML += '</div>';
+
+                document.getElementById('suggestionTableContainer').innerHTML = tableHTML;
+            }
+
+            function showAIError(errorMessage) {
+                document.getElementById('aiSuggestionLoadingSection').style.display = 'none';
+                document.getElementById('aiSuggestionErrorSection').style.display = 'block';
+                document.getElementById('aiErrorMessage').textContent = errorMessage;
+            }
+
+            async function applyAISuggestion() {
+                if (!currentAISuggestion) {
+                    alert('No suggestion to apply');
+                    return;
+                }
+
+                if (!confirm('This will update your goal contributions. Continue?')) {
+                    return;
+                }
+
+                try {
+                    // Prepare allocation data
+                    const allocation = {};
+                    for (const goalName in currentAISuggestion.suggestions) {
+                        allocation[goalName] = currentAISuggestion.suggestions[goalName].amount;
+                    }
+
+                    const response = await fetch('/home/goals/apply-suggestion', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(allocation)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('✅ AI allocation applied successfully!\n\nYour goals have been updated.');
+                        location.reload(); // Reload to show updated goals
+                    } else {
+                        alert('Failed to apply allocation: ' + (data.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to apply allocation');
+                }
+            }
+
         </script>
     </body>
 

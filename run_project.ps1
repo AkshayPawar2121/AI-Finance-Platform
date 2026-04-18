@@ -46,31 +46,57 @@ $venvPython = "$venvDir/Scripts/python.exe"
 Write-Host "Installing Python dependencies into venv..." -ForegroundColor Green
 & $venvPython -m pip install -r requirements.txt | Out-Null
 
-# Train model if model.pkl doesn't exist
+# Train budget prediction model if model.pkl doesn't exist
 if (-not (Test-Path "model.pkl")) {
-    Write-Host "model.pkl not found. Training AI model (this may take 1-2 minutes)..." -ForegroundColor Yellow
+    Write-Host "model.pkl not found. Training AI budget model (this may take 1-2 minutes)..." -ForegroundColor Yellow
     & $venvPython train_model.py
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "Model training failed. Predictions may not work."
+        Write-Warning "Budget model training failed. Budget predictions may not work."
     } else {
-        Write-Host "AI model trained and saved!" -ForegroundColor Green
+        Write-Host "Budget AI model trained and saved!" -ForegroundColor Green
     }
 } else {
-    Write-Host "AI model already trained (model.pkl found)." -ForegroundColor Green
+    Write-Host "Budget AI model already trained (model.pkl found)." -ForegroundColor Green
+}
+
+# Train Q-learning goal allocation model if q_table.pkl doesn't exist
+if (-not (Test-Path "q_table.pkl")) {
+    Write-Host "q_table.pkl not found. Training Q-learning model for goal allocation..." -ForegroundColor Yellow
+    & $venvPython suggestionmodel.py
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Q-learning model training failed. Goal allocation suggestions may not work."
+    } else {
+        Write-Host "Q-learning model trained and saved!" -ForegroundColor Green
+    }
+} else {
+    Write-Host "Q-learning model already trained (q_table.pkl found)." -ForegroundColor Green
 }
 
 # Kill any existing process on port 5000
-$existingPy = Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue
-if ($existingPy) {
+$existingPy5000 = Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue
+if ($existingPy5000) {
     Write-Host "Stopping existing process on port 5000..." -ForegroundColor Yellow
-    $existingPy | ForEach-Object { Stop-Process -Id (Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Id -Force -ErrorAction SilentlyContinue }
+    $existingPy5000 | ForEach-Object { Stop-Process -Id (Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Id -Force -ErrorAction SilentlyContinue }
     Start-Sleep -Seconds 2
 }
 
-# Start Python API in background
-Write-Host "Starting Python Flask API on port 5000..." -ForegroundColor Green
-$pythonJob = Start-Process -FilePath $venvPython -ArgumentList "budgetmodel_api.py" -PassThru -WindowStyle Hidden
-Write-Host "Python API started (PID: $($pythonJob.Id))" -ForegroundColor Green
+# Kill any existing process on port 5001
+$existingPy5001 = Get-NetTCPConnection -LocalPort 5001 -ErrorAction SilentlyContinue
+if ($existingPy5001) {
+    Write-Host "Stopping existing process on port 5001..." -ForegroundColor Yellow
+    $existingPy5001 | ForEach-Object { Stop-Process -Id (Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Id -Force -ErrorAction SilentlyContinue }
+    Start-Sleep -Seconds 2
+}
+
+# Start Budget Prediction API (port 5000) in background
+Write-Host "Starting Budget Prediction API on port 5000..." -ForegroundColor Green
+$pythonJob1 = Start-Process -FilePath $venvPython -ArgumentList "budgetmodel_api.py" -PassThru -WindowStyle Hidden
+Write-Host "Budget API started (PID: $($pythonJob1.Id))" -ForegroundColor Green
+
+# Start Goal Allocation API (port 5001) in background
+Write-Host "Starting Goal Allocation AI API on port 5001..." -ForegroundColor Green
+$pythonJob2 = Start-Process -FilePath $venvPython -ArgumentList "suggestionmodel_api.py" -PassThru -WindowStyle Hidden
+Write-Host "Goal Allocation API started (PID: $($pythonJob2.Id))" -ForegroundColor Green
 
 Pop-Location
 
@@ -79,7 +105,8 @@ Write-Host "Setting up Spring Boot Application..." -ForegroundColor Yellow
 $javaDir = "nextgendemo"
 if (-not (Test-Path $javaDir)) {
     Write-Error "Java directory not found at $javaDir"
-    Stop-Process -Id $pythonJob.Id -Force
+    Stop-Process -Id $pythonJob1.Id -Force -ErrorAction SilentlyContinue
+    Stop-Process -Id $pythonJob2.Id -Force -ErrorAction SilentlyContinue
     exit 1
 }
 
@@ -106,7 +133,8 @@ Write-Host "Compiling Java sources (clean build)..." -ForegroundColor Yellow
 & $mvnCmd clean compile -q
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Maven compilation FAILED. Check the errors above."
-    Stop-Process -Id $pythonJob.Id -Force
+    Stop-Process -Id $pythonJob1.Id -Force -ErrorAction SilentlyContinue
+    Stop-Process -Id $pythonJob2.Id -Force -ErrorAction SilentlyContinue
     exit 1
 }
 Write-Host "Compilation successful!" -ForegroundColor Green
@@ -147,8 +175,10 @@ if ($ready) {
 Write-Host ""
 Write-Host "================================================================" -ForegroundColor Cyan
 Write-Host "  NextGen Finance is RUNNING!" -ForegroundColor Green
-Write-Host "  Web App:    http://localhost:8081" -ForegroundColor White
-Write-Host "  Python API: http://localhost:5000" -ForegroundColor White
+Write-Host "  Web App:              http://localhost:8081" -ForegroundColor White
+Write-Host "  Budget AI API:        http://localhost:5000" -ForegroundColor White
+Write-Host "  Goal Allocation API:  http://localhost:5001" -ForegroundColor White
 Write-Host "================================================================" -ForegroundColor Cyan
-Write-Host "  To stop the Python API: Stop-Process -Id $($pythonJob.Id) -Force" -ForegroundColor DarkGray
+Write-Host "  To stop Budget API:     Stop-Process -Id $($pythonJob1.Id) -Force" -ForegroundColor DarkGray
+Write-Host "  To stop Goal AI API:    Stop-Process -Id $($pythonJob2.Id) -Force" -ForegroundColor DarkGray
 Write-Host "  To stop Spring Boot:    Close the Java console window" -ForegroundColor DarkGray
