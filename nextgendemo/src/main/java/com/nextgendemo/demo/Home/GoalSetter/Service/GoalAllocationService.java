@@ -52,8 +52,9 @@ public class GoalAllocationService {
                 Map<String, Object> goalMap = new HashMap<>();
                 goalMap.put("goalName", goal.getGoalName());
 
-                // Priority: Default to 1 for now (can be enhanced later)
-                goalMap.put("priority", 1);
+                // Priority: Use the actual user-defined priority (1=Highest urgency, 5=Lowest)
+                int goalPriority = (goal.getPriority() != null) ? goal.getPriority() : 3;
+                goalMap.put("priority", goalPriority);
 
                 // Target amount
                 double targetAmount = 0;
@@ -64,8 +65,11 @@ public class GoalAllocationService {
                 }
                 goalMap.put("targetAmount", targetAmount);
 
-                // Remaining amount
-                goalMap.put("remainingAmount", goal.getRemainingAmount());
+                // True remaining amount = target - amount already paid
+                // Note: goal.getRemainingAmount() stores the PAID amount, not what's left
+                double paidAmount = (goal.getRemainingAmount() != null) ? goal.getRemainingAmount() : 0;
+                double trueRemaining = Math.max(0, targetAmount - paidAmount);
+                goalMap.put("remainingAmount", trueRemaining);
 
                 goalsData.add(goalMap);
             }

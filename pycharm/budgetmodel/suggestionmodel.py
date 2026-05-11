@@ -6,6 +6,7 @@ state_size = 100  # Discretize state
 action_size = 100  # Number of possible perturbations
 q_table = np.zeros((state_size, action_size))
 
+
 # Helper: Get state from remaining amounts and progress
 def get_state(goals):
     total_remaining = sum(data["remaining"] for data in goals.values())

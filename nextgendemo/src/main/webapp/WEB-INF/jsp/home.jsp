@@ -316,6 +316,7 @@
                                 <th>Goal Name</th>
                                 <th>Target Amount</th>
                                 <th>Remaining</th>
+                                <th>Priority</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -323,8 +324,24 @@
                             <c:forEach var="goal" items="${userGoals}">
                                 <tr>
                                     <td>${goal.goalName}</td>
-                                    <td>${goal.target}</td>
-                                    <td>${goal.target - (goal.remainingAmount != null ? goal.remainingAmount : 0)}</td>
+                                    <td>&#8377;${goal.target}</td>
+                                    <td>&#8377;${goal.target - (goal.remainingAmount != null ? goal.remainingAmount :
+                                        0)}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${goal.priority == 1}"><span class="badge"
+                                                    style="background:#f28b82;">1 - Highest</span></c:when>
+                                            <c:when test="${goal.priority == 2}"><span class="badge"
+                                                    style="background:#fbbc04; color:#202124;">2 - High</span></c:when>
+                                            <c:when test="${goal.priority == 3}"><span class="badge"
+                                                    style="background:#8ab4f8; color:#202124;">3 - Medium</span>
+                                            </c:when>
+                                            <c:when test="${goal.priority == 4}"><span class="badge"
+                                                    style="background:#81c995; color:#202124;">4 - Low</span></c:when>
+                                            <c:otherwise><span class="badge" style="background:#3c4043;">5 -
+                                                    Lowest</span></c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>
                                         <button class="btn btn-primary btn-sm rounded-pill"
                                             onclick="openPayModal('${goal.goalName}', '${goal.target - (goal.remainingAmount != null ? goal.remainingAmount : 0)}', '${goal.id}')">
@@ -538,10 +555,16 @@
             <div id="expense-tracker" class="content-section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="page-title">Expense Tracker</h2>
-                    <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal"
-                        data-bs-target="#addExpenseModal">
-                        <i class="bi bi-plus-lg"></i> New Expense
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light rounded-pill px-4" onclick="openAIScanModal()"
+                            title="Upload a bill photo and let AI extract the expense details">
+                            <i class="bi bi-camera"></i> AI Scan Bill
+                        </button>
+                        <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal"
+                            data-bs-target="#addExpenseModal">
+                            <i class="bi bi-plus-lg"></i> New Expense
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-responsive">
@@ -593,6 +616,17 @@
                                 <label class="form-label">Target Amount</label>
                                 <input type="number" class="form-control" id="goalTarget" name="target" min="1"
                                     required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Priority <small class="text-muted">(1 = Most Important, 5 =
+                                        Least Important)</small></label>
+                                <select class="form-select" id="goalPriority" name="priority" required>
+                                    <option value="1">Highest Priority (e.g. Emergency Fund)</option>
+                                    <option value="2">High Priority</option>
+                                    <option value="3" selected>Medium Priority (Default)</option>
+                                    <option value="4">Low Priority</option>
+                                    <option value="5">Lowest Priority (Nice to have)</option>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill">Create Goal</button>
                         </form>
@@ -765,7 +799,8 @@
                     <div class="modal-body">
                         <div id="aiSuggestionInputSection">
                             <p class="text-muted mb-3">
-                                Our Q-learning based AI model will analyze your goals and suggest the optimal way to allocate your savings.
+                                Our Q-learning based AI model will analyze your goals and suggest the optimal way to
+                                allocate your savings.
                             </p>
                             <div class="mb-3">
                                 <label class="form-label">Available Savings Amount (&#8377;)</label>
@@ -788,7 +823,8 @@
                                 <button onclick="applyAISuggestion()" class="btn btn-success w-100 rounded-pill">
                                     <i class="bi bi-check-circle"></i> Apply This Allocation
                                 </button>
-                                <button onclick="resetAIModal()" class="btn btn-outline-secondary w-100 rounded-pill mt-2">
+                                <button onclick="resetAIModal()"
+                                    class="btn btn-outline-secondary w-100 rounded-pill mt-2">
                                     <i class="bi bi-arrow-left"></i> Try Different Amount
                                 </button>
                             </div>
@@ -810,6 +846,71 @@
                                 Try Again
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- AI Bill Scanner Modal -->
+        <div class="modal fade" id="aiScanModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="bi bi-camera"></i> AI Bill Scanner</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <!-- Input Section -->
+                        <div id="aiScanInputSection">
+                            <p class="text-muted small mb-3">
+                                Upload a photo of your bill or receipt (handwritten or printed).
+                                Our AI will read the store name and total amount automatically.
+                            </p>
+                            <!-- Drag-and-drop / click-to-upload area -->
+                            <div id="aiScanDropZone"
+                                style="border: 2px dashed var(--border); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s;"
+                                onclick="document.getElementById('billImageInput').click()"
+                                ondragover="event.preventDefault(); this.style.borderColor='var(--primary)';"
+                                ondragleave="this.style.borderColor='var(--border)';"
+                                ondrop="handleScanDrop(event)">
+                                <i class="bi bi-cloud-upload" style="font-size: 2.5rem; color: var(--primary);"></i>
+                                <p class="mt-2 mb-0" style="color: var(--text-muted);">Click or drag &amp; drop your bill image here</p>
+                                <small style="color: var(--text-muted);">Supports JPG, PNG, HEIC, WEBP</small>
+                            </div>
+                            <input type="file" id="billImageInput" accept="image/*" style="display: none;"
+                                onchange="previewBillImage(this)">
+
+                            <!-- Image Preview -->
+                            <div id="aiScanPreviewContainer" style="display: none; margin-top: 1rem; text-align: center;">
+                                <img id="aiScanPreviewImg"
+                                    style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid var(--border);">
+                                <p id="aiScanFileName" class="mt-2 small" style="color: var(--text-muted);"></p>
+                            </div>
+
+                            <button onclick="submitBillForScan()"
+                                class="btn btn-primary w-100 rounded-pill mt-3" id="aiScanBtn" disabled>
+                                <i class="bi bi-robot"></i> Extract Details with AI
+                            </button>
+                        </div>
+
+                        <!-- Loading Section -->
+                        <div id="aiScanLoadingSection" style="display: none; text-align: center; padding: 2rem;">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-3" style="color: var(--text-muted);">AI is reading your bill...</p>
+                            <small style="color: var(--text-muted);">This may take a few seconds.</small>
+                        </div>
+
+                        <!-- Error Section -->
+                        <div id="aiScanErrorSection" style="display: none;">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <span id="aiScanErrorMessage"></span>
+                            </div>
+                            <button onclick="resetAIScanModal()" class="btn btn-outline-secondary w-100 rounded-pill">Try Again</button>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -988,6 +1089,7 @@
                 const formData = new URLSearchParams();
                 formData.append('goalname', document.getElementById('goalname').value);
                 formData.append('target', document.getElementById('goalTarget').value);
+                formData.append('priority', document.getElementById('goalPriority').value);
 
                 fetch('/home/goalsetter', {
                     method: 'POST',
@@ -1639,6 +1741,107 @@
                 } catch (error) {
                     console.error('Error:', error);
                     alert('Failed to apply allocation');
+                }
+            }
+
+            // ================================================
+            // AI BILL SCANNER FUNCTIONS
+            // ================================================
+
+            function openAIScanModal() {
+                resetAIScanModal();
+                new bootstrap.Modal(document.getElementById('aiScanModal')).show();
+            }
+
+            function resetAIScanModal() {
+                document.getElementById('aiScanInputSection').style.display = 'block';
+                document.getElementById('aiScanLoadingSection').style.display = 'none';
+                document.getElementById('aiScanErrorSection').style.display = 'none';
+                document.getElementById('aiScanPreviewContainer').style.display = 'none';
+                document.getElementById('aiScanDropZone').style.borderColor = 'var(--border)';
+                document.getElementById('billImageInput').value = '';
+                document.getElementById('aiScanBtn').disabled = true;
+            }
+
+            function previewBillImage(input) {
+                if (input.files && input.files[0]) {
+                    const file = input.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('aiScanPreviewImg').src = e.target.result;
+                        document.getElementById('aiScanFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+                        document.getElementById('aiScanPreviewContainer').style.display = 'block';
+                        document.getElementById('aiScanDropZone').style.borderColor = 'var(--primary)';
+                        document.getElementById('aiScanBtn').disabled = false;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            function handleScanDrop(event) {
+                event.preventDefault();
+                document.getElementById('aiScanDropZone').style.borderColor = 'var(--border)';
+                const files = event.dataTransfer.files;
+                if (files.length > 0) {
+                    // Assign the dropped file to the input and trigger preview
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[0]);
+                    const input = document.getElementById('billImageInput');
+                    input.files = dataTransfer.files;
+                    previewBillImage(input);
+                }
+            }
+
+            async function submitBillForScan() {
+                const input = document.getElementById('billImageInput');
+                if (!input.files || input.files.length === 0) {
+                    alert('Please select a bill image first.');
+                    return;
+                }
+
+                // Show loading state
+                document.getElementById('aiScanInputSection').style.display = 'none';
+                document.getElementById('aiScanLoadingSection').style.display = 'block';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('billImage', input.files[0]);
+
+                    const response = await fetch('/home/expensetracker/ai-scan', {
+                        method: 'POST',
+                        body: formData
+                        // Do NOT set Content-Type header — browser sets it automatically with boundary for multipart
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Close the scan modal
+                        const scanModal = bootstrap.Modal.getInstance(document.getElementById('aiScanModal'));
+                        if (scanModal) scanModal.hide();
+
+                        // Small delay to let scan modal close cleanly before opening expense modal
+                        setTimeout(function() {
+                            // Pre-fill the existing New Expense modal with the AI-extracted data
+                            document.getElementById('expenseName').value = data.expenseName || '';
+                            document.getElementById('newExpenseAmount').value = data.expenseAmount || '';
+
+                            // Open the New Expense modal for user verification
+                            new bootstrap.Modal(document.getElementById('addExpenseModal')).show();
+                        }, 400);
+
+                    } else {
+                        // Show error
+                        document.getElementById('aiScanLoadingSection').style.display = 'none';
+                        document.getElementById('aiScanErrorSection').style.display = 'block';
+                        document.getElementById('aiScanErrorMessage').textContent = data.error || 'AI could not extract details from this image.';
+                    }
+
+                } catch (error) {
+                    console.error('AI Scan error:', error);
+                    document.getElementById('aiScanLoadingSection').style.display = 'none';
+                    document.getElementById('aiScanErrorSection').style.display = 'block';
+                    document.getElementById('aiScanErrorMessage').textContent = 'Network error. Please ensure the server is running.';
                 }
             }
 
