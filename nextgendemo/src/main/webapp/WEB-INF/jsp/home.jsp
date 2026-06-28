@@ -10,6 +10,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <style>
             :root {
                 --bg-body: #121212;
@@ -203,6 +204,82 @@
                 font-weight: 600;
             }
 
+            /* Chart Cards */
+            .chart-card {
+                background-color: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 1.5rem;
+                height: 100%;
+            }
+
+            .chart-title {
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin-bottom: 1.5rem;
+                color: var(--text-main);
+            }
+
+            canvas {
+                max-height: 300px !important;
+            }
+
+            /* AI Insights Styling */
+            .ai-insights-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1rem;
+            }
+
+            .insight-card {
+                background-color: var(--surface);
+                border-left: 4px solid var(--primary);
+                padding: 1rem 1.25rem;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .insight-card:hover {
+                transform: translateX(5px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .insight-card.success {
+                border-left-color: #81c995;
+            }
+
+            .insight-card.warning {
+                border-left-color: #fdd663;
+            }
+
+            .insight-card.danger {
+                border-left-color: #f28b82;
+            }
+
+            .insight-card.info {
+                border-left-color: var(--primary);
+            }
+
+            .insight-icon {
+                font-size: 1.25rem;
+                margin-right: 0.75rem;
+            }
+
+            .insight-title {
+                font-weight: 600;
+                font-size: 0.95rem;
+                margin-bottom: 0.5rem;
+                color: var(--text-main);
+                display: flex;
+                align-items: center;
+            }
+
+            .insight-description {
+                font-size: 0.875rem;
+                color: var(--text-muted);
+                line-height: 1.5;
+            }
+
             /* Content Sections */
             .content-section {
                 display: none;
@@ -372,7 +449,10 @@
                 <i class="bi bi-graph-up-arrow" style="color: var(--primary);"></i> NextGen
             </a>
             <div class="nav flex-column">
-                <a href="#" class="nav-link active" id="goal-setter-link">
+                <a href="#" class="nav-link active" id="dashboard-link">
+                    <i class="bi bi-graph-up"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link" id="goal-setter-link">
                     <i class="bi bi-bullseye"></i> Goal Setter
                 </a>
                 <a href="#" class="nav-link" id="budget-planner-link">
@@ -396,7 +476,7 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Dashboard Overview -->
+            <!-- Dashboard Overview Stats -->
             <div class="row g-4 mb-5">
                 <div class="col-md-4">
                     <div class="stat-card">
@@ -418,8 +498,47 @@
                 </div>
             </div>
 
+            <!-- DASHBOARD SECTION WITH CHARTS -->
+            <div id="dashboard" class="content-section active-section">
+                <h2 class="page-title">Financial Dashboard</h2>
+
+                <div class="row g-4 mb-4">
+                    <!-- Expense Breakdown Chart -->
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="chart-title">Expense Breakdown</h5>
+                            <canvas id="expenseDonutChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Goal Progress Chart -->
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="chart-title">Goal Progress</h5>
+                            <canvas id="goalProgressChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights Section -->
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="chart-card" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-hover) 100%);">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-lightbulb-fill" style="font-size: 1.5rem; color: var(--primary); margin-right: 0.75rem;"></i>
+                                <h5 class="chart-title mb-0">AI Financial Insights</h5>
+                            </div>
+
+                            <div id="aiInsightsContent" class="ai-insights-container">
+                                <!-- Insights will be dynamically generated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 1. GOAL SETTER SECTION -->
-            <div id="goal-setter" class="content-section active-section">
+            <div id="goal-setter" class="content-section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="page-title">Goal Setter</h2>
                     <div class="d-flex gap-2">
@@ -1067,10 +1186,14 @@
                 if (savedSection && savedLink && document.getElementById(savedSection) && document.getElementById(savedLink)) {
                     showSection(savedSection, savedLink);
                 } else {
-                    showSection('goal-setter', 'goal-setter-link');
+                    showSection('dashboard', 'dashboard-link');
                 }
             })();
 
+            document.getElementById('dashboard-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('dashboard', 'dashboard-link');
+            });
             document.getElementById('goal-setter-link').addEventListener('click', (e) => {
                 e.preventDefault();
                 showSection('goal-setter', 'goal-setter-link');
@@ -1083,6 +1206,359 @@
                 e.preventDefault();
                 showSection('expense-tracker', 'expense-tracker-link');
             });
+
+            // ================================================
+            // CHART.JS DASHBOARD INITIALIZATION
+            // ================================================
+
+            // Prepare expense data from JSP
+            const expenseData = {
+                labels: [],
+                amounts: []
+            };
+
+            <c:forEach var="expense" items="${userExpenses}">
+                expenseData.labels.push('${expense.expenseName}');
+                expenseData.amounts.push(${expense.expenseAmount});
+            </c:forEach>
+
+            // Prepare budget data from JSP
+            const budgetData = {
+                totalBudget: 0
+            };
+
+            <c:forEach var="budget" items="${userBudgets}">
+                budgetData.totalBudget += ${budget.budget_amount};
+            </c:forEach>
+
+            // Prepare goal data from JSP
+            const goalData = {
+                names: [],
+                progress: [],
+                targets: []
+            };
+
+            <c:forEach var="goal" items="${userGoals}">
+                goalData.names.push('${goal.goalName}');
+                var target = ${goal.target};
+                // NOTE: Despite the field name, remainingAmount actually stores the PAID/ACHIEVED amount!
+                var achieved = ${goal.remainingAmount != null ? goal.remainingAmount : 0};
+                var percentage = target > 0 ? (achieved / target) * 100 : 0;
+                goalData.progress.push(Math.min(100, Math.max(0, percentage)));
+                goalData.targets.push(target);
+            </c:forEach>
+
+            // Store chart instances globally for theme switching
+            let chartInstances = {};
+
+            // Theme-aware colors function
+            function getChartColors() {
+                const theme = document.getElementById('html-root').getAttribute('data-bs-theme');
+                const isDark = theme === 'dark';
+
+                return {
+                    textColor: isDark ? '#e8eaed' : '#202124',
+                    gridColor: isDark ? '#3c4043' : '#dadce0',
+                    colors: [
+                        '#8ab4f8', '#81c995', '#fdd663', '#f28b82',
+                        '#c58af9', '#78d9ec', '#ff8bcb', '#f9ab00'
+                    ]
+                };
+            }
+
+            // 1. Create Expense Donut Chart
+            function createExpenseDonutChart() {
+                const ctx = document.getElementById('expenseDonutChart');
+                if (!ctx) return null;
+
+                const colors = getChartColors();
+
+                // Aggregate expenses by name
+                const aggregated = {};
+                for (let i = 0; i < expenseData.labels.length; i++) {
+                    const name = expenseData.labels[i];
+                    const amount = expenseData.amounts[i];
+                    aggregated[name] = (aggregated[name] || 0) + amount;
+                }
+
+                const labels = Object.keys(aggregated);
+                const data = Object.values(aggregated);
+
+                return new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors.colors,
+                            borderWidth: 2,
+                            borderColor: colors.gridColor
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: colors.textColor,
+                                    padding: 15,
+                                    font: { size: 12 }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                        return label + ': ₹' + value + ' (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Create Goal Progress Horizontal Bar Chart
+            function createGoalProgressChart() {
+                const ctx = document.getElementById('goalProgressChart');
+                if (!ctx) return null;
+
+                const colors = getChartColors();
+
+                return new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: goalData.names,
+                        datasets: [{
+                            label: 'Completion %',
+                            data: goalData.progress,
+                            backgroundColor: goalData.progress.map(p =>
+                                p >= 75 ? '#81c995' : p >= 50 ? '#fdd663' : '#f28b82'
+                            ),
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.parsed.x.toFixed(1) + '% complete';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: colors.textColor },
+                                grid: { color: colors.gridColor },
+                                max: 100
+                            },
+                            y: {
+                                ticks: { color: colors.textColor },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Initialize all charts
+            function initializeCharts() {
+                // Destroy existing charts if they exist
+                Object.values(chartInstances).forEach(chart => {
+                    if (chart) chart.destroy();
+                });
+
+                // Create new charts
+                chartInstances.expenseDonut = createExpenseDonutChart();
+                chartInstances.goalProgress = createGoalProgressChart();
+            }
+
+            // Generate AI Financial Insights
+            function generateAIInsights() {
+                const insights = [];
+
+                // Safety check: ensure data is available
+                if (!expenseData || !budgetData || !goalData) {
+                    console.error('Data not available for insights');
+                    return;
+                }
+
+                // Calculate totals
+                const totalExpenses = expenseData.amounts.length > 0 ? expenseData.amounts.reduce((a, b) => a + b, 0) : 0;
+                const totalBudget = budgetData.totalBudget || 0;
+                const totalGoalTargets = goalData.targets.length > 0 ? goalData.targets.reduce((a, b) => a + b, 0) : 0;
+                let totalGoalAchieved = 0;
+                for (let i = 0; i < goalData.targets.length; i++) {
+                    totalGoalAchieved += (goalData.targets[i] * goalData.progress[i]) / 100;
+                }
+
+                // Insight 1: Budget Utilization
+                if (totalBudget > 0) {
+                    const budgetUsed = (totalExpenses / totalBudget) * 100;
+                    if (budgetUsed < 20) {
+                        insights.push({
+                            type: 'success',
+                            icon: 'bi-check-circle-fill',
+                            title: 'Excellent Budget Management',
+                            description: 'You have only spent ' + budgetUsed.toFixed(1) + '% of your total budget (Rs.' + totalExpenses.toLocaleString('en-IN') + ' out of Rs.' + totalBudget.toLocaleString('en-IN') + '). You are doing great at controlling expenses!'
+                        });
+                    } else if (budgetUsed < 50) {
+                        insights.push({
+                            type: 'success',
+                            icon: 'bi-check-circle',
+                            title: 'Good Budget Control',
+                            description: 'You have used ' + budgetUsed.toFixed(1) + '% of your budget. Keep monitoring your spending to stay on track.'
+                        });
+                    } else if (budgetUsed < 80) {
+                        insights.push({
+                            type: 'warning',
+                            icon: 'bi-exclamation-triangle',
+                            title: 'Moderate Budget Usage',
+                            description: 'You have used ' + budgetUsed.toFixed(1) + '% of your budget. Consider reviewing non-essential expenses.'
+                        });
+                    } else {
+                        insights.push({
+                            type: 'danger',
+                            icon: 'bi-exclamation-circle-fill',
+                            title: 'Budget Alert',
+                            description: 'You have used ' + budgetUsed.toFixed(1) + '% of your budget. Review your spending immediately to avoid overspending.'
+                        });
+                    }
+                }
+
+                // Insight 2: Goal Progress
+                if (goalData.progress.length > 0) {
+                    const avgGoalProgress = goalData.progress.reduce((a, b) => a + b, 0) / goalData.progress.length;
+                    if (avgGoalProgress >= 75) {
+                        insights.push({
+                            type: 'success',
+                            icon: 'bi-trophy-fill',
+                            title: 'Outstanding Goal Achievement',
+                            description: 'Your goals are ' + avgGoalProgress.toFixed(1) + '% complete on average! You are on track to achieve your financial targets.'
+                        });
+                    } else if (avgGoalProgress >= 50) {
+                        insights.push({
+                            type: 'info',
+                            icon: 'bi-flag',
+                            title: 'Steady Progress on Goals',
+                            description: 'You have achieved ' + avgGoalProgress.toFixed(1) + '% of your goals on average. Keep up the momentum!'
+                        });
+                    } else if (avgGoalProgress >= 25) {
+                        insights.push({
+                            type: 'warning',
+                            icon: 'bi-flag',
+                            title: 'Goal Progress Needs Attention',
+                            description: 'Your goals are ' + avgGoalProgress.toFixed(1) + '% complete. Consider increasing your savings to meet your targets faster.'
+                        });
+                    } else {
+                        insights.push({
+                            type: 'info',
+                            icon: 'bi-flag',
+                            title: 'Early Stage Goals',
+                            description: 'You are ' + avgGoalProgress.toFixed(1) + '% towards your goals. Start saving consistently to build momentum.'
+                        });
+                    }
+                }
+
+                // Insight 3: Expense Pattern Analysis
+                if (expenseData.labels.length > 0) {
+                    // Find highest expense
+                    let maxExpenseIndex = 0;
+                    let maxAmount = expenseData.amounts[0];
+                    for (let i = 1; i < expenseData.amounts.length; i++) {
+                        if (expenseData.amounts[i] > maxAmount) {
+                            maxAmount = expenseData.amounts[i];
+                            maxExpenseIndex = i;
+                        }
+                    }
+                    const maxExpensePercentage = (maxAmount / totalExpenses) * 100;
+
+                    insights.push({
+                        type: 'info',
+                        icon: 'bi-pie-chart-fill',
+                        title: 'Top Spending Category',
+                        description: '"' + expenseData.labels[maxExpenseIndex] + '" is your highest expense at Rs.' + maxAmount.toLocaleString('en-IN') + ' (' + maxExpensePercentage.toFixed(1) + '% of total spending).'
+                    });
+                }
+
+                // Insight 4: Savings Potential
+                const savingsPotential = totalBudget - totalExpenses;
+                if (savingsPotential > 0 && totalBudget > 0) {
+                    const savingsRate = (savingsPotential / totalBudget) * 100;
+                    insights.push({
+                        type: 'success',
+                        icon: 'bi-piggy-bank-fill',
+                        title: 'Savings Opportunity',
+                        description: 'You have Rs.' + savingsPotential.toLocaleString('en-IN') + ' (' + savingsRate.toFixed(1) + '% of budget) available for savings or investments. Consider allocating this towards your goals!'
+                    });
+                }
+
+                // Insight 5: Goal Recommendations
+                const remainingGoalAmount = totalGoalTargets - totalGoalAchieved;
+                if (remainingGoalAmount > 0) {
+                    insights.push({
+                        type: 'info',
+                        icon: 'bi-bullseye',
+                        title: 'Goal Target Remaining',
+                        description: 'You need Rs.' + remainingGoalAmount.toLocaleString('en-IN') + ' more to complete all your goals. Focus on your highest priority goals first!'
+                    });
+                }
+
+                // Render insights
+                const container = document.getElementById('aiInsightsContent');
+                if (container) {
+                    if (insights.length === 0) {
+                        container.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-info-circle me-2"></i>Add expenses, budgets, and goals to see AI-powered insights!</div>';
+                        return;
+                    }
+
+                    let html = '';
+                    insights.forEach(function(insight) {
+                        let iconColor = 'var(--primary)';
+                        if (insight.type === 'success') iconColor = '#81c995';
+                        else if (insight.type === 'warning') iconColor = '#fdd663';
+                        else if (insight.type === 'danger') iconColor = '#f28b82';
+
+                        html += '<div class="insight-card ' + insight.type + '">';
+                        html += '<div class="insight-title">';
+                        html += '<i class="insight-icon ' + insight.icon + '" style="color: ' + iconColor + '"></i>';
+                        html += insight.title;
+                        html += '</div>';
+                        html += '<div class="insight-description">' + insight.description + '</div>';
+                        html += '</div>';
+                    });
+                    container.innerHTML = html;
+                }
+            }
+
+            // Initialize charts and insights when DOM is ready
+            document.addEventListener('DOMContentLoaded', function () {
+                initializeCharts();
+                generateAIInsights();
+            });
+
+            // Re-render charts and insights on theme change
+            const themeToggleBtn = document.getElementById('themeToggle');
+            if (themeToggleBtn) {
+                const originalOnClick = themeToggleBtn.onclick;
+                themeToggleBtn.addEventListener('click', function () {
+                    setTimeout(() => {
+                        initializeCharts();
+                        generateAIInsights();
+                    }, 100);
+                });
+            }
 
             // Modal Open Functions
             function openPayModal(goalName, remainingAmount, goalId) {
