@@ -24,9 +24,12 @@ public class AmountSet {
     @Column(name = "Target", nullable = false)  // Corresponds to the Target column in the database
     private String target;
     @Column(name = "RemainingAmount", nullable = false) 
-    private Integer remainingAmount = 0; // Default value
+    private Integer remainingAmount = 0; // Default value (stores amount PAID)
 
- // Getter and Setter for spentAmount
+    @Column(name = "Priority", nullable = false)
+    private Integer priority = 3; // Default: 3 = Medium (1=High, 2=Medium-High, 3=Medium, 4=Low, 5=Lowest)
+
+    // Getter and Setter for remainingAmount (stores PAID amount)
 	 public Integer getRemainingAmount() {
 	     return remainingAmount;
 	 }
@@ -34,6 +37,15 @@ public class AmountSet {
 	 public void setRemainingAmount(double d) {
 	     this.remainingAmount = (int) d;
 	 }
+
+    // Getter and Setter for priority
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = (priority != null && priority >= 1 && priority <= 5) ? priority : 3;
+    }
     
     // Getter and setter methods for each field
     public long getId() {
@@ -69,12 +81,13 @@ public class AmountSet {
     }
     
     // Parameterized constructor for convenience
-    public AmountSet(long id, String userName, String goalName, String target) {
+    public AmountSet(long id, String userName, String goalName, String target, Integer priority) {
         super();
         this.id = id;
         this.userName = userName;
         this.goalName = goalName;
         this.target = target;
+        this.priority = (priority != null && priority >= 1 && priority <= 5) ? priority : 3;
     }
 
     // Default constructor
@@ -85,7 +98,7 @@ public class AmountSet {
     // Override toString method to display object info
     @Override
     public String toString() {
-        return "AmountSet [id=" + id + ", userName=" + userName + ", goalName=" + goalName + ", target=" + target + "]";
+        return "AmountSet [id=" + id + ", userName=" + userName + ", goalName=" + goalName + ", target=" + target + ", priority=" + priority + "]";
     }
 
 	public void setRemainingAmount1(double d) {

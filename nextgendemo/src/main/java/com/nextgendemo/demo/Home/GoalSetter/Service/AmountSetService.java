@@ -15,13 +15,14 @@ public class AmountSetService {
 	
 	 @Autowired
 	 private GoalRepository goalRepository;
-	 public boolean setGoal(String userName,String goalname, String target) {
+	 public boolean setGoal(String userName, String goalname, String target, Integer priority) {
 		try {
             // Create a new Goal object
             AmountSet goal = new AmountSet();
             goal.setUserName(userName);
             goal.setGoalName(goalname);
             goal.setTarget(target);
+            goal.setPriority(priority); // Set user-defined priority (1=Highest, 5=Lowest)
 
             // Save the goal in the database
             goalRepository.save(goal);

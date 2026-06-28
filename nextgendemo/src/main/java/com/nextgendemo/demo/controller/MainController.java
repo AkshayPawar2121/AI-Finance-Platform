@@ -21,12 +21,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nextgendemo.demo.Home.Home;
 import com.nextgendemo.demo.Home.BudgetPlanner.Entity.BudgetPlan;
 import com.nextgendemo.demo.Home.BudgetPlanner.Service.BudgetService;
 import com.nextgendemo.demo.Home.ExpenseTracker.Entity.ExpenseTrack;
 import com.nextgendemo.demo.Home.ExpenseTracker.Service.ExpenseService;
+import com.nextgendemo.demo.Home.ExpenseTracker.Service.GeminiVisionService;
 import com.nextgendemo.demo.Home.GoalSetter.Entity.AmountSet;
 import com.nextgendemo.demo.Home.GoalSetter.Service.AmountSetService;
 import com.nextgendemo.demo.Home.GoalSetter.Service.GoalAllocationService;
@@ -46,6 +48,8 @@ public class MainController {
     private RegisterService rs;
     @Autowired 
     private AmountSetService ass;
+    @Autowired
+    private GeminiVisionService geminiVisionService;
     @Autowired
     private BudgetService bs;
     @Autowired
@@ -129,9 +133,13 @@ public class MainController {
 	    
 		// for goal setting
 	    @PostMapping("/home/goalsetter")
-	    public String goalSetter(@RequestParam String goalname, @RequestParam String target,HttpSession session) {
+	    public String goalSetter(
+	            @RequestParam String goalname,
+	            @RequestParam String target,
+	            @RequestParam(required = false, defaultValue = "3") Integer priority,
+	            HttpSession session) {
 	    	String username = (String) session.getAttribute("userName");
-	    	boolean amntSetS= ass.setGoal(username,goalname, target);
+	    	boolean amntSetS = ass.setGoal(username, goalname, target, priority);
 	        if (amntSetS) {
 	            return "redirect:/home"; // Redirect to the home page
 	        } else {
@@ -448,6 +456,48 @@ public class MainController {
 
 
 
+
+	    // ============================================
+	    // AI BILL SCANNER (Gemini Vision)
+	    // ============================================
+
+	    /**
+	     * Accepts an uploaded bill image, sends it to the Gemini 1.5 Flash Vision API,
+	     * and returns the extracted expense name and amount as JSON.
+	     */
+	    @PostMapping(value = "/home/expensetracker/ai-scan", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+	    @ResponseBody
+	    public Map<String, Object> scanExpenseBill(
+	            @RequestParam("billImage") MultipartFile file,
+	            HttpSession session) {
+
+	        Map<String, Object> response = new HashMap<>();
+	        String userName = (String) session.getAttribute("userName");
+
+	        if (userName == null) {
+	            response.put("success", false);
+	            response.put("error", "User not logged in");
+	            return response;
+	        }
+
+	        if (file == null || file.isEmpty()) {
+	            response.put("success", false);
+	            response.put("error", "No image file provided");
+	            return response;
+	        }
+
+	        try {
+	            Map<String, Object> extracted = geminiVisionService.extractExpenseDetails(file);
+	            response.put("success", true);
+	            response.put("expenseName", extracted.get("expenseName"));
+	            response.put("expenseAmount", extracted.get("expenseAmount"));
+	        } catch (Exception e) {
+	            response.put("success", false);
+	            response.put("error", "AI extraction failed: " + e.getMessage());
+	        }
+
+	        return response;
+	    }
 
 	    // delete the expense
 	    @DeleteMapping("/home/expensetracker/delete/{id}")
