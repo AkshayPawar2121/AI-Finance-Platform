@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
   <!DOCTYPE html>
-  <html lang="en" data-bs-theme="dark">
+  <html lang="en" data-bs-theme="dark" id="html-root">
 
   <head>
     <meta charset="UTF-8">
@@ -21,6 +21,76 @@
         --text-main: #e8eaed;
         --text-muted: #9aa0a6;
         --border: #3c4043;
+      }
+
+      /* Light theme variables */
+      [data-bs-theme="light"] {
+        --bg-body: #f5f5f5;
+        --surface: #ffffff;
+        --surface-hover: #f0f0f0;
+        --primary: #1a73e8;
+        --primary-hover: #1557b0;
+        --text-main: #202124;
+        --text-muted: #5f6368;
+        --border: #dadce0;
+      }
+
+      /* Light mode specific overrides */
+      [data-bs-theme="light"] .form-control {
+        background-color: #ffffff !important;
+        color: var(--text-main) !important;
+      }
+
+      [data-bs-theme="light"] .form-control:focus {
+        background-color: #ffffff !important;
+        box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2) !important;
+      }
+
+      [data-bs-theme="light"] .btn-close {
+        filter: invert(0);
+      }
+
+      [data-bs-theme="light"] .alert-success {
+        background-color: #e6f4ea;
+        border-color: #34a853;
+        color: #137333;
+      }
+
+      [data-bs-theme="light"] .alert-danger {
+        background-color: #fce8e6;
+        border-color: #ea4335;
+        color: #c5221f;
+      }
+
+      [data-bs-theme="light"] .modal-content {
+        background-color: #ffffff;
+        border: 1px solid var(--border);
+      }
+
+      [data-bs-theme="light"] .navbar-toggler-icon {
+        filter: invert(0);
+      }
+
+      /* Light mode button overrides */
+      [data-bs-theme="light"] .btn-primary {
+        background-color: var(--primary);
+        color: #ffffff !important;
+        font-weight: 500;
+      }
+
+      [data-bs-theme="light"] .btn-primary:hover {
+        background-color: var(--primary-hover);
+        color: #ffffff !important;
+      }
+
+      [data-bs-theme="light"] .btn-nav-signup {
+        background-color: var(--primary);
+        color: #ffffff !important;
+      }
+
+      [data-bs-theme="light"] .btn-nav-signup:hover {
+        background-color: var(--primary-hover);
+        color: #ffffff !important;
       }
 
       body {
@@ -246,6 +316,23 @@
         border-color: #6e2828;
         color: #ff6b6b;
       }
+
+      /* Theme toggle button */
+      .btn-theme-toggle {
+        background-color: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        border-radius: 8px;
+        padding: 8px 12px;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+
+      .btn-theme-toggle:hover {
+        background-color: var(--surface-hover);
+        color: var(--text-main);
+        border-color: var(--text-muted);
+      }
     </style>
   </head>
 
@@ -260,6 +347,11 @@
         </button>
         <div class="collapse navbar-collapse" id="navContent">
           <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item me-3">
+              <button id="themeToggle" class="btn btn-theme-toggle" aria-label="Toggle theme">
+                <i id="themeIcon" class="fas fa-sun"></i>
+              </button>
+            </li>
             <li class="nav-item me-3">
               <button class="btn btn-nav-login btn-link text-decoration-none" data-bs-toggle="modal"
                 data-bs-target="#loginModal">
@@ -289,7 +381,7 @@
       <div class="row g-4">
         <div class="col-md-4">
           <div class="feature-card">
-            <div class="feature-icon">✨</div>
+            <div class="feature-icon"><i class="fas fa-brain"></i></div>
             <div class="feature-title">AI Predictions</div>
             <div class="feature-text">
               Leverage our advanced machine learning probability models to forecast your future expenses and plan
@@ -299,7 +391,7 @@
         </div>
         <div class="col-md-4">
           <div class="feature-card">
-            <div class="feature-icon">📊</div>
+            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
             <div class="feature-title">Expense Tracking</div>
             <div class="feature-text">
               Gain complete visibility into your spending habits. Categorize, analyze, and optimize your monthly
@@ -309,7 +401,7 @@
         </div>
         <div class="col-md-4">
           <div class="feature-card">
-            <div class="feature-icon">🎯</div>
+            <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
             <div class="feature-title">Goal Setter</div>
             <div class="feature-text">
               Define your financial targets and track progress. We help you stay disciplined and reach your milestones
@@ -375,6 +467,36 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Theme Toggle Functionality
+      (function() {
+        const htmlRoot = document.getElementById('html-root');
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        // Load saved theme or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        htmlRoot.setAttribute('data-bs-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        // Toggle theme on button click
+        themeToggleBtn.addEventListener('click', function() {
+          const currentTheme = htmlRoot.getAttribute('data-bs-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+          htmlRoot.setAttribute('data-bs-theme', newTheme);
+          localStorage.setItem('theme', newTheme);
+          updateThemeIcon(newTheme);
+        });
+
+        // Update icon based on current theme
+        function updateThemeIcon(theme) {
+          if (themeIcon) {
+            themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+          }
+        }
+      })();
+    </script>
     <script>
       // Auto-open login modal if success or error message exists
       window.addEventListener('DOMContentLoaded', function() {

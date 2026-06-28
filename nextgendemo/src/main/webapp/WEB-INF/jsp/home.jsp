@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <!DOCTYPE html>
-    <html lang="en" data-bs-theme="dark">
+    <html lang="en" data-bs-theme="dark" id="html-root">
 
     <head>
         <meta charset="UTF-8">
@@ -23,6 +23,104 @@
                 --text-muted: #9aa0a6;
                 --border: #3c4043;
                 --sidebar-width: 260px;
+            }
+
+            /* Light theme variables */
+            [data-bs-theme="light"] {
+                --bg-body: #f5f5f5;
+                --surface: #ffffff;
+                --surface-hover: #f0f0f0;
+                --primary: #1a73e8;
+                --primary-hover: #1557b0;
+                --success: #1e8e3e;
+                --danger: #d93025;
+                --text-main: #202124;
+                --text-muted: #5f6368;
+                --border: #dadce0;
+                --sidebar-width: 260px;
+            }
+
+            /* Light mode specific overrides */
+            [data-bs-theme="light"] .form-control,
+            [data-bs-theme="light"] .form-select {
+                background-color: #ffffff !important;
+                color: var(--text-main) !important;
+            }
+
+            [data-bs-theme="light"] .form-control:focus,
+            [data-bs-theme="light"] .form-select:focus {
+                background-color: #ffffff !important;
+                box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2) !important;
+            }
+
+            [data-bs-theme="light"] .btn-close {
+                filter: invert(0);
+            }
+
+            [data-bs-theme="light"] .modal-content {
+                background-color: #ffffff;
+                border: 1px solid var(--border);
+            }
+
+            [data-bs-theme="light"] .stat-card {
+                background-color: #ffffff;
+                border: 1px solid var(--border);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+
+            [data-bs-theme="light"] .table {
+                --bs-table-bg: #ffffff;
+            }
+
+            [data-bs-theme="light"] #sidebar {
+                background-color: #ffffff;
+                border-right: 1px solid var(--border);
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            }
+
+            /* Light mode button overrides */
+            [data-bs-theme="light"] .btn-outline-light {
+                color: var(--text-main);
+                border-color: var(--border);
+                background-color: transparent;
+            }
+
+            [data-bs-theme="light"] .btn-outline-light:hover {
+                color: #ffffff;
+                background-color: var(--text-main);
+                border-color: var(--text-main);
+            }
+
+            [data-bs-theme="light"] .btn-outline-secondary {
+                color: var(--text-muted);
+                border-color: var(--border);
+            }
+
+            [data-bs-theme="light"] .btn-outline-secondary:hover {
+                color: #ffffff;
+                background-color: var(--text-muted);
+                border-color: var(--text-muted);
+            }
+
+            [data-bs-theme="light"] .btn-outline-danger {
+                color: #d93025;
+                border-color: #d93025;
+            }
+
+            [data-bs-theme="light"] .btn-outline-danger:hover {
+                background-color: #d93025;
+                color: #ffffff;
+            }
+
+            [data-bs-theme="light"] .btn-primary {
+                background-color: var(--primary);
+                color: #ffffff !important;
+                font-weight: 500;
+            }
+
+            [data-bs-theme="light"] .btn-primary:hover {
+                background-color: var(--primary-hover);
+                color: #ffffff !important;
             }
 
             body {
@@ -241,6 +339,28 @@
             #modalContent th {
                 background-color: var(--surface-hover);
             }
+
+            /* Theme toggle button */
+            .btn-theme-toggle {
+                background-color: transparent;
+                border: 1px solid var(--border);
+                color: var(--text-muted);
+                border-radius: 8px;
+                padding: 8px 12px;
+                transition: all 0.2s;
+                cursor: pointer;
+                width: 100%;
+                text-align: left;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .btn-theme-toggle:hover {
+                background-color: var(--surface-hover);
+                color: var(--text-main);
+                border-color: var(--text-muted);
+            }
         </style>
     </head>
 
@@ -261,6 +381,11 @@
                 <a href="#" class="nav-link" id="expense-tracker-link">
                     <i class="bi bi-receipt"></i> Expense Tracker
                 </a>
+            </div>
+            <div style="position: absolute; bottom: 6rem; width: calc(100% - 3rem);">
+                <button id="themeToggle" class="btn-theme-toggle nav-link" aria-label="Toggle theme">
+                    <i id="themeIcon" class="bi bi-sun-fill"></i> <span id="themeText">Light Mode</span>
+                </button>
             </div>
             <div style="position: absolute; bottom: 2rem; width: calc(100% - 3rem);">
                 <a href="/" class="nav-link text-danger">
@@ -1844,6 +1969,42 @@
                     document.getElementById('aiScanErrorMessage').textContent = 'Network error. Please ensure the server is running.';
                 }
             }
+
+            // Theme Toggle Functionality
+            (function() {
+                const htmlRoot = document.getElementById('html-root');
+                const themeToggleBtn = document.getElementById('themeToggle');
+                const themeIcon = document.getElementById('themeIcon');
+                const themeText = document.getElementById('themeText');
+
+                // Load saved theme or default to dark
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                htmlRoot.setAttribute('data-bs-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+
+                // Toggle theme on button click
+                themeToggleBtn.addEventListener('click', function() {
+                    const currentTheme = htmlRoot.getAttribute('data-bs-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                    htmlRoot.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    updateThemeIcon(newTheme);
+                });
+
+                // Update icon and text based on current theme
+                function updateThemeIcon(theme) {
+                    if (themeIcon && themeText) {
+                        if (theme === 'dark') {
+                            themeIcon.className = 'bi bi-sun-fill';
+                            themeText.textContent = 'Light Mode';
+                        } else {
+                            themeIcon.className = 'bi bi-moon-fill';
+                            themeText.textContent = 'Dark Mode';
+                        }
+                    }
+                }
+            })();
 
         </script>
     </body>
