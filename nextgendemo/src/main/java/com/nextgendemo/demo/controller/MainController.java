@@ -423,10 +423,11 @@ public class MainController {
 	            @RequestParam String expenseName,
 	            @RequestParam int expenseAmount,
 	            @RequestParam(required = false) String expenseDate,
+	            @RequestParam(required = false) String expenseCategory,
 	            HttpSession session) {
 	    	String username = (String) session.getAttribute("userName");
-	    	System.out.println(username+" "+expenseName+" "+expenseAmount+" "+expenseDate);
-	    	boolean amntBgtS= es.setExpense(username,expenseName, expenseAmount, expenseDate);
+	    	System.out.println(username+" "+expenseName+" "+expenseAmount+" "+expenseDate+" "+expenseCategory);
+	    	boolean amntBgtS= es.setExpense(username,expenseName, expenseAmount, expenseDate, expenseCategory);
 	        if (amntBgtS) {
 	            return "redirect:/home"; // Redirect to the home page
 	        } else {
@@ -439,15 +440,16 @@ public class MainController {
 	    @ResponseBody
 	    public Map<String, Object> processExpensePayment(@RequestParam("expenseId") Long expenseId,
 	                                                    @RequestParam("expenseAmount") double expenseAmount,
+	                                                    @RequestParam(required = false) String expenseCategory,
 	                                                    HttpSession session) {
 	        Map<String, Object> response = new HashMap<>();
 	        String userName = (String) session.getAttribute("userName");
-	        
-	        System.out.println("Received expenseId: " + expenseId + ", expenseAmount: " + expenseAmount);
+
+	        System.out.println("Received expenseId: " + expenseId + ", expenseAmount: " + expenseAmount + ", category: " + expenseCategory);
 
 	        if (userName != null) {
 	            try {
-	                boolean success = es.updateExpensePayment(expenseId, (int) expenseAmount);
+	                boolean success = es.updateExpensePayment(expenseId, (int) expenseAmount, expenseCategory);
 	                response.put("success", success);
 	            } catch (Exception e) {
 	                response.put("success", false);
@@ -457,7 +459,7 @@ public class MainController {
 	            response.put("success", false);
 	            response.put("error", "User not logged in");
 	        }
-	        
+
 	        return response;
 	    }
 

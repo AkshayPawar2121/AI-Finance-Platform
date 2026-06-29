@@ -16,13 +16,14 @@ public class ExpenseService {
 	@Autowired
 	private ExpenseRepository expenseRepository;
 
-	public boolean setExpense(String username, String expenseName, int expenseAmount, String expenseDateStr) {
+	public boolean setExpense(String username, String expenseName, int expenseAmount, String expenseDateStr, String category) {
 		try {
             // Create a new Expense object
 			ExpenseTrack expense = new ExpenseTrack();
 			expense.setUserName(username);
 			expense.setExpenseName(expenseName);
 			expense.setExpenseAmount(expenseAmount);
+			expense.setCategory(category != null && !category.isEmpty() ? category : "Other");
 
 			// Parse and set date
 			if (expenseDateStr != null && !expenseDateStr.isEmpty()) {
@@ -52,14 +53,17 @@ public class ExpenseService {
 		return expenseRepository.findByUserName(userName);
 	}
 	
-	public boolean updateExpensePayment(Long expenseId, int expenseAmount) {
-		 Optional<ExpenseTrack> expenseOpt = expenseRepository.findById(expenseId);		    
+	public boolean updateExpensePayment(Long expenseId, int expenseAmount, String category) {
+		 Optional<ExpenseTrack> expenseOpt = expenseRepository.findById(expenseId);
 		    System.out.println(expenseId);
 		    System.out.println(expenseAmount);
 		    if (expenseOpt.isPresent()) {
 		       ExpenseTrack  expense = expenseOpt.get();
-		        
+
 		       expense.setExpenseAmount(expenseAmount);
+		       if (category != null && !category.isEmpty()) {
+		           expense.setCategory(category);
+		       }
 		        expenseRepository.save(expense);
 		        return true;
 		    }

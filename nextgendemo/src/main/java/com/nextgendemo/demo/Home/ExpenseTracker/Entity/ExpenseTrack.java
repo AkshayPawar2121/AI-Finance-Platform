@@ -23,6 +23,8 @@ public class ExpenseTrack {
 	private int expenseAmount;
 	@Column(name="Expense_Date")
 	private LocalDate expenseDate;
+	@Column(name="Category")
+	private String category;
 	public Long getId() {
 		return id;
 	}
@@ -52,6 +54,12 @@ public class ExpenseTrack {
 	}
 	public void setExpenseDate(LocalDate expenseDate) {
 		this.expenseDate = expenseDate;
+	}
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
 	}
 	public ExpenseTrack(Long id, String userName, String expenseName, int expenseAmount, LocalDate expenseDate) {
 		super();
