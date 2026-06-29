@@ -478,19 +478,13 @@
         <main class="main-content">
             <!-- Dashboard Overview Stats -->
             <div class="row g-4 mb-5">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="stat-card">
                         <div class="stat-label">Total Goals</div>
                         <div class="stat-value">${userGoals.size()}</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-label">Active Budgets</div>
-                        <div class="stat-value">${userBudgets.size()}</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="stat-card">
                         <div class="stat-label">Total Expenses</div>
                         <div class="stat-value">${userExpenses.size()}</div>
@@ -1721,6 +1715,8 @@
                             showTable(roundedData);
                             const resultModal = new bootstrap.Modal(document.getElementById('responseModal'));
                             resultModal.show();
+                            // Clear form after successful prediction
+                            document.getElementById('predictForm').reset();
                         } else {
                             alert('Prediction Error: ' + (data.error || 'Could not connect to the AI model. Make sure the Python API is running on port 5000.'));
                         }
