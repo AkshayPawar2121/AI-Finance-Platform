@@ -36,6 +36,32 @@
       }
 
       /* Light mode specific overrides */
+      [data-bs-theme="light"] .hero h1 {
+        background: linear-gradient(180deg, #202124, #5f6368);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+      }
+
+      [data-bs-theme="light"] .hero p {
+        color: var(--text-muted);
+      }
+
+      [data-bs-theme="light"] .btn-hero {
+        background-color: var(--primary);
+        color: #ffffff !important;
+      }
+
+      [data-bs-theme="light"] .btn-hero:hover {
+        background-color: var(--primary-hover);
+        color: #ffffff !important;
+      }
+
+      [data-bs-theme="light"] .feature-title {
+        color: var(--text-main);
+      }
+
       [data-bs-theme="light"] .form-control {
         background-color: #ffffff !important;
         color: var(--text-main) !important;

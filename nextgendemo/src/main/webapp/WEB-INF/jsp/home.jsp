@@ -456,7 +456,7 @@
                     <i class="bi bi-bullseye"></i> Goal Setter
                 </a>
                 <a href="#" class="nav-link" id="budget-planner-link">
-                    <i class="bi bi-wallet2"></i> Budget Planner
+                    <i class="bi bi-robot"></i> AI Budget Predictor
                 </a>
                 <a href="#" class="nav-link" id="expense-tracker-link">
                     <i class="bi bi-receipt"></i> Expense Tracker
@@ -603,46 +603,10 @@
                 </div>
             </div>
 
-            <!-- 2. BUDGET PLANNER SECTION -->
+            <!-- 2. AI BUDGET PREDICTOR SECTION -->
             <div id="budget-planner" class="content-section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="page-title">Budget Planner</h2>
-                    <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal"
-                        data-bs-target="#addBudgetModal">
-                        <i class="bi bi-plus-lg"></i> New Budget
-                    </button>
-                </div>
-
-                <!-- Existing Budgets Table -->
-                <div class="card mb-5" style="background-color: var(--surface); border: 1px solid var(--border);">
-                    <div class="card-header border-bottom border-secondary bg-transparent py-3 mx-3 px-0">
-                        <h5 class="mb-0 fw-normal fs-6 text-uppercase text-muted">Active Budgets</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <table class="table mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="ps-4">Budget Name</th>
-                                    <th>Amount</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="budget" items="${userBudgets}">
-                                    <tr>
-                                        <td class="ps-4">${budget.budget_name}</td>
-                                        <td>${budget.budget_amount}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-primary rounded-pill"
-                                                onclick="openBudgetPayModal('${budget.budget_amount}', '${budget.id}')">Edit</button>
-                                            <button class="btn btn-sm btn-outline-danger rounded-pill ms-2"
-                                                onclick="deleteBudget('${budget.id}')">Delete</button>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-                    </div>
+                    <h2 class="page-title">AI Budget Predictor</h2>
                 </div>
 
                 <!-- AI Prediction Form -->
@@ -652,7 +616,7 @@
                             <div class="mb-2">
                                 <i class="bi bi-robot" style="font-size: 2rem; color: var(--primary);"></i>
                             </div>
-                            <h4 class="fw-normal">AI Financial Predictor</h4>
+                            <h4 class="fw-normal">AI Budget Predictor</h4>
                             <p class="text-muted small">Let our probability model analyze your profile.</p>
                         </div>
 
@@ -873,32 +837,6 @@
                                 </select>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill">Create Goal</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Budget -->
-        <div class="modal fade" id="addBudgetModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Create Budget</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="budgetForm">
-                            <div class="mb-3">
-                                <label class="form-label">Budget Name</label>
-                                <input type="text" class="form-control" id="budgetName" name="budgetName" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Amount</label>
-                                <input type="number" class="form-control" id="newBudgetAmount" name="budgetAmount"
-                                    min="1" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Save Budget</button>
                         </form>
                     </div>
                 </div>
@@ -1314,7 +1252,7 @@
                                         const value = context.parsed || 0;
                                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                         const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                        return label + ': ₹' + value + ' (' + percentage + '%)';
+                                        return label + ': Rs.' + value + ' (' + percentage + '%)';
                                     }
                                 }
                             }
@@ -1707,29 +1645,6 @@
                         }
                     })
                     .catch(() => alert('Error creating goal. Please try again.'));
-            });
-
-            document.getElementById('budgetForm').addEventListener('submit', function (e) {
-                e.preventDefault();
-                const formData = new URLSearchParams();
-                formData.append('budgetName', document.getElementById('budgetName').value);
-                formData.append('budgetAmount', document.getElementById('newBudgetAmount').value);
-
-                fetch('/home/budgetplanner', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData.toString()
-                })
-                    .then(response => {
-                        if (response.ok || response.redirected) {
-                            bootstrap.Modal.getInstance(document.getElementById('addBudgetModal')).hide();
-                            this.reset();
-                            window.location.reload();
-                        } else {
-                            alert('Failed to create budget. Please try again.');
-                        }
-                    })
-                    .catch(() => alert('Error creating budget. Please try again.'));
             });
 
             document.getElementById('expenseForm').addEventListener('submit', function (e) {
