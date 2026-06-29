@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <!DOCTYPE html>
-    <html lang="en" data-bs-theme="dark">
+    <html lang="en" data-bs-theme="dark" id="html-root">
 
     <head>
         <meta charset="UTF-8">
@@ -10,6 +10,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <style>
             :root {
                 --bg-body: #121212;
@@ -23,6 +24,104 @@
                 --text-muted: #9aa0a6;
                 --border: #3c4043;
                 --sidebar-width: 260px;
+            }
+
+            /* Light theme variables */
+            [data-bs-theme="light"] {
+                --bg-body: #f5f5f5;
+                --surface: #ffffff;
+                --surface-hover: #f0f0f0;
+                --primary: #1a73e8;
+                --primary-hover: #1557b0;
+                --success: #1e8e3e;
+                --danger: #d93025;
+                --text-main: #202124;
+                --text-muted: #5f6368;
+                --border: #dadce0;
+                --sidebar-width: 260px;
+            }
+
+            /* Light mode specific overrides */
+            [data-bs-theme="light"] .form-control,
+            [data-bs-theme="light"] .form-select {
+                background-color: #ffffff !important;
+                color: var(--text-main) !important;
+            }
+
+            [data-bs-theme="light"] .form-control:focus,
+            [data-bs-theme="light"] .form-select:focus {
+                background-color: #ffffff !important;
+                box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2) !important;
+            }
+
+            [data-bs-theme="light"] .btn-close {
+                filter: invert(0);
+            }
+
+            [data-bs-theme="light"] .modal-content {
+                background-color: #ffffff;
+                border: 1px solid var(--border);
+            }
+
+            [data-bs-theme="light"] .stat-card {
+                background-color: #ffffff;
+                border: 1px solid var(--border);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+
+            [data-bs-theme="light"] .table {
+                --bs-table-bg: #ffffff;
+            }
+
+            [data-bs-theme="light"] #sidebar {
+                background-color: #ffffff;
+                border-right: 1px solid var(--border);
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            }
+
+            /* Light mode button overrides */
+            [data-bs-theme="light"] .btn-outline-light {
+                color: var(--text-main);
+                border-color: var(--border);
+                background-color: transparent;
+            }
+
+            [data-bs-theme="light"] .btn-outline-light:hover {
+                color: #ffffff;
+                background-color: var(--text-main);
+                border-color: var(--text-main);
+            }
+
+            [data-bs-theme="light"] .btn-outline-secondary {
+                color: var(--text-muted);
+                border-color: var(--border);
+            }
+
+            [data-bs-theme="light"] .btn-outline-secondary:hover {
+                color: #ffffff;
+                background-color: var(--text-muted);
+                border-color: var(--text-muted);
+            }
+
+            [data-bs-theme="light"] .btn-outline-danger {
+                color: #d93025;
+                border-color: #d93025;
+            }
+
+            [data-bs-theme="light"] .btn-outline-danger:hover {
+                background-color: #d93025;
+                color: #ffffff;
+            }
+
+            [data-bs-theme="light"] .btn-primary {
+                background-color: var(--primary);
+                color: #ffffff !important;
+                font-weight: 500;
+            }
+
+            [data-bs-theme="light"] .btn-primary:hover {
+                background-color: var(--primary-hover);
+                color: #ffffff !important;
             }
 
             body {
@@ -103,6 +202,82 @@
             .stat-value {
                 font-size: 1.75rem;
                 font-weight: 600;
+            }
+
+            /* Chart Cards */
+            .chart-card {
+                background-color: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 1.5rem;
+                height: 100%;
+            }
+
+            .chart-title {
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin-bottom: 1.5rem;
+                color: var(--text-main);
+            }
+
+            canvas {
+                max-height: 300px !important;
+            }
+
+            /* AI Insights Styling */
+            .ai-insights-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1rem;
+            }
+
+            .insight-card {
+                background-color: var(--surface);
+                border-left: 4px solid var(--primary);
+                padding: 1rem 1.25rem;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .insight-card:hover {
+                transform: translateX(5px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .insight-card.success {
+                border-left-color: #81c995;
+            }
+
+            .insight-card.warning {
+                border-left-color: #fdd663;
+            }
+
+            .insight-card.danger {
+                border-left-color: #f28b82;
+            }
+
+            .insight-card.info {
+                border-left-color: var(--primary);
+            }
+
+            .insight-icon {
+                font-size: 1.25rem;
+                margin-right: 0.75rem;
+            }
+
+            .insight-title {
+                font-weight: 600;
+                font-size: 0.95rem;
+                margin-bottom: 0.5rem;
+                color: var(--text-main);
+                display: flex;
+                align-items: center;
+            }
+
+            .insight-description {
+                font-size: 0.875rem;
+                color: var(--text-muted);
+                line-height: 1.5;
             }
 
             /* Content Sections */
@@ -241,6 +416,365 @@
             #modalContent th {
                 background-color: var(--surface-hover);
             }
+
+            /* Theme toggle button */
+            .btn-theme-toggle {
+                background-color: transparent;
+                border: 1px solid var(--border);
+                color: var(--text-muted);
+                border-radius: 8px;
+                padding: 8px 12px;
+                transition: all 0.2s;
+                cursor: pointer;
+                width: 100%;
+                text-align: left;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .btn-theme-toggle:hover {
+                background-color: var(--surface-hover);
+                color: var(--text-main);
+                border-color: var(--text-muted);
+            }
+
+            /* Chatbot Styles */
+            .chat-button {
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+                border: none;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s;
+                z-index: 1000;
+            }
+
+            .chat-button:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            }
+
+            .chat-button i {
+                font-size: 28px;
+                color: #ffffff;
+            }
+
+            .chat-modal {
+                position: fixed;
+                bottom: 5rem;
+                right: 2rem;
+                width: 400px;
+                height: 600px;
+                background-color: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+                display: none;
+                flex-direction: column;
+                z-index: 1001;
+                overflow: hidden;
+            }
+
+            [data-bs-theme="dark"] .chat-modal {
+                background-color: #0d1117;
+                border: 1px solid #30363d;
+                box-shadow: 0 12px 48px rgba(0, 0, 0, 0.8);
+            }
+
+            .chat-modal.active {
+                display: flex;
+            }
+
+            .chat-header {
+                background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+                padding: 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-radius: 16px 16px 0 0;
+            }
+
+            [data-bs-theme="dark"] .chat-header {
+                background: linear-gradient(135deg, #1f6feb, #1a56db);
+            }
+
+            .chat-header-content {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .chat-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .chat-avatar i {
+                font-size: 20px;
+                color: #ffffff;
+            }
+
+            .chat-title {
+                color: #ffffff;
+                font-weight: 600;
+                font-size: 1.1rem;
+                margin: 0;
+            }
+
+            .chat-subtitle {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.75rem;
+                margin: 0;
+            }
+
+            .chat-close {
+                background: transparent;
+                border: none;
+                color: #ffffff;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: background 0.2s;
+            }
+
+            .chat-close:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            .chat-body {
+                flex: 1;
+                padding: 1.5rem;
+                overflow-y: auto;
+                background-color: var(--bg-body);
+            }
+
+            [data-bs-theme="dark"] .chat-body {
+                background-color: #010409;
+            }
+
+            .chat-message {
+                margin-bottom: 1.25rem;
+                display: flex;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .chat-message.user {
+                flex-direction: row-reverse;
+            }
+
+            .message-avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .message-avatar.bot {
+                background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            }
+
+            .message-avatar.user {
+                background-color: var(--text-muted);
+            }
+
+            .message-avatar i {
+                font-size: 16px;
+                color: #ffffff;
+            }
+
+            .message-content {
+                max-width: 75%;
+                padding: 0.875rem 1.125rem;
+                border-radius: 16px;
+                line-height: 1.5;
+                font-size: 0.9rem;
+            }
+
+            .message-content.bot {
+                background-color: var(--surface);
+                color: var(--text-main);
+                border: 1px solid var(--border);
+            }
+
+            [data-bs-theme="dark"] .message-content.bot {
+                background-color: #161b22;
+                color: #c9d1d9;
+                border: 1px solid #30363d;
+            }
+
+            .message-content.user {
+                background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+                color: #ffffff;
+            }
+
+            .typing-indicator {
+                display: flex;
+                gap: 0.35rem;
+                padding: 0.875rem 1.125rem;
+                background-color: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                width: fit-content;
+            }
+
+            [data-bs-theme="dark"] .typing-indicator {
+                background-color: #161b22;
+                border: 1px solid #30363d;
+            }
+
+            .typing-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: var(--text-muted);
+                animation: typing 1.4s infinite;
+            }
+
+            .typing-dot:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .typing-dot:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+
+            @keyframes typing {
+                0%, 60%, 100% {
+                    transform: translateY(0);
+                    opacity: 0.7;
+                }
+                30% {
+                    transform: translateY(-10px);
+                    opacity: 1;
+                }
+            }
+
+            .chat-suggestions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+
+            .suggestion-chip {
+                background-color: var(--surface);
+                border: 1px solid var(--border);
+                color: var(--text-main);
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .suggestion-chip:hover {
+                background-color: var(--primary);
+                color: #ffffff;
+                border-color: var(--primary);
+            }
+
+            .chat-input-container {
+                padding: 1rem;
+                background-color: var(--surface);
+                border-top: 1px solid var(--border);
+                display: flex;
+                gap: 0.75rem;
+            }
+
+            [data-bs-theme="dark"] .chat-input-container {
+                background-color: #0d1117;
+                border-top: 1px solid #21262d;
+            }
+
+            .chat-input {
+                flex: 1;
+                background-color: var(--bg-body);
+                border: 1px solid var(--border);
+                color: var(--text-main);
+                border-radius: 24px;
+                padding: 0.75rem 1.25rem;
+                font-size: 0.9rem;
+                outline: none;
+                transition: border-color 0.2s;
+            }
+
+            [data-bs-theme="dark"] .chat-input {
+                background-color: #0d1117;
+                border: 1px solid #30363d;
+                color: #c9d1d9;
+            }
+
+            [data-bs-theme="dark"] .chat-input::placeholder {
+                color: #8b949e;
+            }
+
+            [data-bs-theme="dark"] .chat-input:focus {
+                border-color: #58a6ff;
+                box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+            }
+
+            .chat-input:focus {
+                border-color: var(--primary);
+            }
+
+            .chat-send-btn {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+                border: none;
+                color: #ffffff;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.2s;
+            }
+
+            .chat-send-btn:hover {
+                transform: scale(1.05);
+            }
+
+            .chat-send-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            .chat-send-btn i {
+                font-size: 18px;
+            }
+
+            @media (max-width: 768px) {
+                .chat-modal {
+                    width: calc(100vw - 2rem);
+                    height: calc(100vh - 8rem);
+                    right: 1rem;
+                }
+            }
         </style>
     </head>
 
@@ -252,15 +786,23 @@
                 <i class="bi bi-graph-up-arrow" style="color: var(--primary);"></i> NextGen
             </a>
             <div class="nav flex-column">
-                <a href="#" class="nav-link active" id="goal-setter-link">
+                <a href="#" class="nav-link active" id="dashboard-link">
+                    <i class="bi bi-graph-up"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link" id="goal-setter-link">
                     <i class="bi bi-bullseye"></i> Goal Setter
                 </a>
                 <a href="#" class="nav-link" id="budget-planner-link">
-                    <i class="bi bi-wallet2"></i> Budget Planner
+                    <i class="bi bi-robot"></i> AI Budget Predictor
                 </a>
                 <a href="#" class="nav-link" id="expense-tracker-link">
                     <i class="bi bi-receipt"></i> Expense Tracker
                 </a>
+            </div>
+            <div style="position: absolute; bottom: 6rem; width: calc(100% - 3rem);">
+                <button id="themeToggle" class="btn-theme-toggle nav-link" aria-label="Toggle theme">
+                    <i id="themeIcon" class="bi bi-sun-fill"></i> <span id="themeText">Light Mode</span>
+                </button>
             </div>
             <div style="position: absolute; bottom: 2rem; width: calc(100% - 3rem);">
                 <a href="/" class="nav-link text-danger">
@@ -271,21 +813,15 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Dashboard Overview -->
+            <!-- Dashboard Overview Stats -->
             <div class="row g-4 mb-5">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="stat-card">
                         <div class="stat-label">Total Goals</div>
                         <div class="stat-value">${userGoals.size()}</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-label">Active Budgets</div>
-                        <div class="stat-value">${userBudgets.size()}</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="stat-card">
                         <div class="stat-label">Total Expenses</div>
                         <div class="stat-value">${userExpenses.size()}</div>
@@ -293,8 +829,47 @@
                 </div>
             </div>
 
+            <!-- DASHBOARD SECTION WITH CHARTS -->
+            <div id="dashboard" class="content-section active-section">
+                <h2 class="page-title">Financial Dashboard</h2>
+
+                <div class="row g-4 mb-4">
+                    <!-- Expense Breakdown Chart -->
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="chart-title">Expense Breakdown</h5>
+                            <canvas id="expenseDonutChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Goal Progress Chart -->
+                    <div class="col-md-6">
+                        <div class="chart-card">
+                            <h5 class="chart-title">Goal Progress</h5>
+                            <canvas id="goalProgressChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights Section -->
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="chart-card" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-hover) 100%);">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-lightbulb-fill" style="font-size: 1.5rem; color: var(--primary); margin-right: 0.75rem;"></i>
+                                <h5 class="chart-title mb-0">AI Financial Insights</h5>
+                            </div>
+
+                            <div id="aiInsightsContent" class="ai-insights-container">
+                                <!-- Insights will be dynamically generated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 1. GOAL SETTER SECTION -->
-            <div id="goal-setter" class="content-section active-section">
+            <div id="goal-setter" class="content-section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="page-title">Goal Setter</h2>
                     <div class="d-flex gap-2">
@@ -359,46 +934,10 @@
                 </div>
             </div>
 
-            <!-- 2. BUDGET PLANNER SECTION -->
+            <!-- 2. AI BUDGET PREDICTOR SECTION -->
             <div id="budget-planner" class="content-section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="page-title">Budget Planner</h2>
-                    <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal"
-                        data-bs-target="#addBudgetModal">
-                        <i class="bi bi-plus-lg"></i> New Budget
-                    </button>
-                </div>
-
-                <!-- Existing Budgets Table -->
-                <div class="card mb-5" style="background-color: var(--surface); border: 1px solid var(--border);">
-                    <div class="card-header border-bottom border-secondary bg-transparent py-3 mx-3 px-0">
-                        <h5 class="mb-0 fw-normal fs-6 text-uppercase text-muted">Active Budgets</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <table class="table mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="ps-4">Budget Name</th>
-                                    <th>Amount</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="budget" items="${userBudgets}">
-                                    <tr>
-                                        <td class="ps-4">${budget.budget_name}</td>
-                                        <td>${budget.budget_amount}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-primary rounded-pill"
-                                                onclick="openBudgetPayModal('${budget.budget_amount}', '${budget.id}')">Edit</button>
-                                            <button class="btn btn-sm btn-outline-danger rounded-pill ms-2"
-                                                onclick="deleteBudget('${budget.id}')">Delete</button>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-                    </div>
+                    <h2 class="page-title">AI Budget Predictor</h2>
                 </div>
 
                 <!-- AI Prediction Form -->
@@ -408,7 +947,7 @@
                             <div class="mb-2">
                                 <i class="bi bi-robot" style="font-size: 2rem; color: var(--primary);"></i>
                             </div>
-                            <h4 class="fw-normal">AI Financial Predictor</h4>
+                            <h4 class="fw-normal">AI Budget Predictor</h4>
                             <p class="text-muted small">Let our probability model analyze your profile.</p>
                         </div>
 
@@ -629,32 +1168,6 @@
                                 </select>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill">Create Goal</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Budget -->
-        <div class="modal fade" id="addBudgetModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Create Budget</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="budgetForm">
-                            <div class="mb-3">
-                                <label class="form-label">Budget Name</label>
-                                <input type="text" class="form-control" id="budgetName" name="budgetName" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Amount</label>
-                                <input type="number" class="form-control" id="newBudgetAmount" name="budgetAmount"
-                                    min="1" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Save Budget</button>
                         </form>
                     </div>
                 </div>
@@ -917,6 +1430,61 @@
         </div>
 
 
+        <!-- AI Financial Advisor Chatbot -->
+        <button class="chat-button" id="chatButton" title="AI Financial Advisor">
+            <i class="bi bi-chat-dots-fill"></i>
+        </button>
+
+        <div class="chat-modal" id="chatModal">
+            <div class="chat-header">
+                <div class="chat-header-content">
+                    <div class="chat-avatar">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div>
+                        <h6 class="chat-title">AI Financial Advisor</h6>
+                        <p class="chat-subtitle">Ask me anything about your finances</p>
+                    </div>
+                </div>
+                <button class="chat-close" id="chatClose">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="chat-body" id="chatBody">
+                <div class="chat-message">
+                    <div class="message-avatar bot">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div class="message-content bot">
+                        Hi! I'm your AI Financial Advisor. I can help you with budgeting, expense analysis, and financial planning. What would you like to know?
+                    </div>
+                </div>
+
+                <div class="chat-suggestions">
+                    <div class="suggestion-chip" data-question="How much have I spent this month?">
+                        How much have I spent?
+                    </div>
+                    <div class="suggestion-chip" data-question="Am I on track with my goals?">
+                        Goal progress?
+                    </div>
+                    <div class="suggestion-chip" data-question="Where should I cut expenses?">
+                        Savings tips?
+                    </div>
+                    <div class="suggestion-chip" data-question="Give me a financial health summary">
+                        Health check
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type your question..." />
+                <button class="chat-send-btn" id="chatSendBtn">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        </div>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -942,10 +1510,14 @@
                 if (savedSection && savedLink && document.getElementById(savedSection) && document.getElementById(savedLink)) {
                     showSection(savedSection, savedLink);
                 } else {
-                    showSection('goal-setter', 'goal-setter-link');
+                    showSection('dashboard', 'dashboard-link');
                 }
             })();
 
+            document.getElementById('dashboard-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('dashboard', 'dashboard-link');
+            });
             document.getElementById('goal-setter-link').addEventListener('click', (e) => {
                 e.preventDefault();
                 showSection('goal-setter', 'goal-setter-link');
@@ -958,6 +1530,359 @@
                 e.preventDefault();
                 showSection('expense-tracker', 'expense-tracker-link');
             });
+
+            // ================================================
+            // CHART.JS DASHBOARD INITIALIZATION
+            // ================================================
+
+            // Prepare expense data from JSP
+            const expenseData = {
+                labels: [],
+                amounts: []
+            };
+
+            <c:forEach var="expense" items="${userExpenses}">
+                expenseData.labels.push('${expense.expenseName}');
+                expenseData.amounts.push(${expense.expenseAmount});
+            </c:forEach>
+
+            // Prepare budget data from JSP
+            const budgetData = {
+                totalBudget: 0
+            };
+
+            <c:forEach var="budget" items="${userBudgets}">
+                budgetData.totalBudget += ${budget.budget_amount};
+            </c:forEach>
+
+            // Prepare goal data from JSP
+            const goalData = {
+                names: [],
+                progress: [],
+                targets: []
+            };
+
+            <c:forEach var="goal" items="${userGoals}">
+                goalData.names.push('${goal.goalName}');
+                var target = ${goal.target};
+                // NOTE: Despite the field name, remainingAmount actually stores the PAID/ACHIEVED amount!
+                var achieved = ${goal.remainingAmount != null ? goal.remainingAmount : 0};
+                var percentage = target > 0 ? (achieved / target) * 100 : 0;
+                goalData.progress.push(Math.min(100, Math.max(0, percentage)));
+                goalData.targets.push(target);
+            </c:forEach>
+
+            // Store chart instances globally for theme switching
+            let chartInstances = {};
+
+            // Theme-aware colors function
+            function getChartColors() {
+                const theme = document.getElementById('html-root').getAttribute('data-bs-theme');
+                const isDark = theme === 'dark';
+
+                return {
+                    textColor: isDark ? '#e8eaed' : '#202124',
+                    gridColor: isDark ? '#3c4043' : '#dadce0',
+                    colors: [
+                        '#8ab4f8', '#81c995', '#fdd663', '#f28b82',
+                        '#c58af9', '#78d9ec', '#ff8bcb', '#f9ab00'
+                    ]
+                };
+            }
+
+            // 1. Create Expense Donut Chart
+            function createExpenseDonutChart() {
+                const ctx = document.getElementById('expenseDonutChart');
+                if (!ctx) return null;
+
+                const colors = getChartColors();
+
+                // Aggregate expenses by name
+                const aggregated = {};
+                for (let i = 0; i < expenseData.labels.length; i++) {
+                    const name = expenseData.labels[i];
+                    const amount = expenseData.amounts[i];
+                    aggregated[name] = (aggregated[name] || 0) + amount;
+                }
+
+                const labels = Object.keys(aggregated);
+                const data = Object.values(aggregated);
+
+                return new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors.colors,
+                            borderWidth: 2,
+                            borderColor: colors.gridColor
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: colors.textColor,
+                                    padding: 15,
+                                    font: { size: 12 }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                        return label + ': Rs.' + value + ' (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Create Goal Progress Horizontal Bar Chart
+            function createGoalProgressChart() {
+                const ctx = document.getElementById('goalProgressChart');
+                if (!ctx) return null;
+
+                const colors = getChartColors();
+
+                return new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: goalData.names,
+                        datasets: [{
+                            label: 'Completion %',
+                            data: goalData.progress,
+                            backgroundColor: goalData.progress.map(p =>
+                                p >= 75 ? '#81c995' : p >= 50 ? '#fdd663' : '#f28b82'
+                            ),
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.parsed.x.toFixed(1) + '% complete';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: colors.textColor },
+                                grid: { color: colors.gridColor },
+                                max: 100
+                            },
+                            y: {
+                                ticks: { color: colors.textColor },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Initialize all charts
+            function initializeCharts() {
+                // Destroy existing charts if they exist
+                Object.values(chartInstances).forEach(chart => {
+                    if (chart) chart.destroy();
+                });
+
+                // Create new charts
+                chartInstances.expenseDonut = createExpenseDonutChart();
+                chartInstances.goalProgress = createGoalProgressChart();
+            }
+
+            // Generate AI Financial Insights
+            function generateAIInsights() {
+                const insights = [];
+
+                // Safety check: ensure data is available
+                if (!expenseData || !budgetData || !goalData) {
+                    console.error('Data not available for insights');
+                    return;
+                }
+
+                // Calculate totals
+                const totalExpenses = expenseData.amounts.length > 0 ? expenseData.amounts.reduce((a, b) => a + b, 0) : 0;
+                const totalBudget = budgetData.totalBudget || 0;
+                const totalGoalTargets = goalData.targets.length > 0 ? goalData.targets.reduce((a, b) => a + b, 0) : 0;
+                let totalGoalAchieved = 0;
+                for (let i = 0; i < goalData.targets.length; i++) {
+                    totalGoalAchieved += (goalData.targets[i] * goalData.progress[i]) / 100;
+                }
+
+                // Insight 1: Budget Utilization
+                if (totalBudget > 0) {
+                    const budgetUsed = (totalExpenses / totalBudget) * 100;
+                    if (budgetUsed < 20) {
+                        insights.push({
+                            type: 'success',
+                            icon: 'bi-check-circle-fill',
+                            title: 'Excellent Budget Management',
+                            description: 'You have only spent ' + budgetUsed.toFixed(1) + '% of your total budget (Rs.' + totalExpenses.toLocaleString('en-IN') + ' out of Rs.' + totalBudget.toLocaleString('en-IN') + '). You are doing great at controlling expenses!'
+                        });
+                    } else if (budgetUsed < 50) {
+                        insights.push({
+                            type: 'success',
+                            icon: 'bi-check-circle',
+                            title: 'Good Budget Control',
+                            description: 'You have used ' + budgetUsed.toFixed(1) + '% of your budget. Keep monitoring your spending to stay on track.'
+                        });
+                    } else if (budgetUsed < 80) {
+                        insights.push({
+                            type: 'warning',
+                            icon: 'bi-exclamation-triangle',
+                            title: 'Moderate Budget Usage',
+                            description: 'You have used ' + budgetUsed.toFixed(1) + '% of your budget. Consider reviewing non-essential expenses.'
+                        });
+                    } else {
+                        insights.push({
+                            type: 'danger',
+                            icon: 'bi-exclamation-circle-fill',
+                            title: 'Budget Alert',
+                            description: 'You have used ' + budgetUsed.toFixed(1) + '% of your budget. Review your spending immediately to avoid overspending.'
+                        });
+                    }
+                }
+
+                // Insight 2: Goal Progress
+                if (goalData.progress.length > 0) {
+                    const avgGoalProgress = goalData.progress.reduce((a, b) => a + b, 0) / goalData.progress.length;
+                    if (avgGoalProgress >= 75) {
+                        insights.push({
+                            type: 'success',
+                            icon: 'bi-trophy-fill',
+                            title: 'Outstanding Goal Achievement',
+                            description: 'Your goals are ' + avgGoalProgress.toFixed(1) + '% complete on average! You are on track to achieve your financial targets.'
+                        });
+                    } else if (avgGoalProgress >= 50) {
+                        insights.push({
+                            type: 'info',
+                            icon: 'bi-flag',
+                            title: 'Steady Progress on Goals',
+                            description: 'You have achieved ' + avgGoalProgress.toFixed(1) + '% of your goals on average. Keep up the momentum!'
+                        });
+                    } else if (avgGoalProgress >= 25) {
+                        insights.push({
+                            type: 'warning',
+                            icon: 'bi-flag',
+                            title: 'Goal Progress Needs Attention',
+                            description: 'Your goals are ' + avgGoalProgress.toFixed(1) + '% complete. Consider increasing your savings to meet your targets faster.'
+                        });
+                    } else {
+                        insights.push({
+                            type: 'info',
+                            icon: 'bi-flag',
+                            title: 'Early Stage Goals',
+                            description: 'You are ' + avgGoalProgress.toFixed(1) + '% towards your goals. Start saving consistently to build momentum.'
+                        });
+                    }
+                }
+
+                // Insight 3: Expense Pattern Analysis
+                if (expenseData.labels.length > 0) {
+                    // Find highest expense
+                    let maxExpenseIndex = 0;
+                    let maxAmount = expenseData.amounts[0];
+                    for (let i = 1; i < expenseData.amounts.length; i++) {
+                        if (expenseData.amounts[i] > maxAmount) {
+                            maxAmount = expenseData.amounts[i];
+                            maxExpenseIndex = i;
+                        }
+                    }
+                    const maxExpensePercentage = (maxAmount / totalExpenses) * 100;
+
+                    insights.push({
+                        type: 'info',
+                        icon: 'bi-pie-chart-fill',
+                        title: 'Top Spending Category',
+                        description: '"' + expenseData.labels[maxExpenseIndex] + '" is your highest expense at Rs.' + maxAmount.toLocaleString('en-IN') + ' (' + maxExpensePercentage.toFixed(1) + '% of total spending).'
+                    });
+                }
+
+                // Insight 4: Savings Potential
+                const savingsPotential = totalBudget - totalExpenses;
+                if (savingsPotential > 0 && totalBudget > 0) {
+                    const savingsRate = (savingsPotential / totalBudget) * 100;
+                    insights.push({
+                        type: 'success',
+                        icon: 'bi-piggy-bank-fill',
+                        title: 'Savings Opportunity',
+                        description: 'You have Rs.' + savingsPotential.toLocaleString('en-IN') + ' (' + savingsRate.toFixed(1) + '% of budget) available for savings or investments. Consider allocating this towards your goals!'
+                    });
+                }
+
+                // Insight 5: Goal Recommendations
+                const remainingGoalAmount = totalGoalTargets - totalGoalAchieved;
+                if (remainingGoalAmount > 0) {
+                    insights.push({
+                        type: 'info',
+                        icon: 'bi-bullseye',
+                        title: 'Goal Target Remaining',
+                        description: 'You need Rs.' + remainingGoalAmount.toLocaleString('en-IN') + ' more to complete all your goals. Focus on your highest priority goals first!'
+                    });
+                }
+
+                // Render insights
+                const container = document.getElementById('aiInsightsContent');
+                if (container) {
+                    if (insights.length === 0) {
+                        container.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-info-circle me-2"></i>Add expenses, budgets, and goals to see AI-powered insights!</div>';
+                        return;
+                    }
+
+                    let html = '';
+                    insights.forEach(function(insight) {
+                        let iconColor = 'var(--primary)';
+                        if (insight.type === 'success') iconColor = '#81c995';
+                        else if (insight.type === 'warning') iconColor = '#fdd663';
+                        else if (insight.type === 'danger') iconColor = '#f28b82';
+
+                        html += '<div class="insight-card ' + insight.type + '">';
+                        html += '<div class="insight-title">';
+                        html += '<i class="insight-icon ' + insight.icon + '" style="color: ' + iconColor + '"></i>';
+                        html += insight.title;
+                        html += '</div>';
+                        html += '<div class="insight-description">' + insight.description + '</div>';
+                        html += '</div>';
+                    });
+                    container.innerHTML = html;
+                }
+            }
+
+            // Initialize charts and insights when DOM is ready
+            document.addEventListener('DOMContentLoaded', function () {
+                initializeCharts();
+                generateAIInsights();
+            });
+
+            // Re-render charts and insights on theme change
+            const themeToggleBtn = document.getElementById('themeToggle');
+            if (themeToggleBtn) {
+                const originalOnClick = themeToggleBtn.onclick;
+                themeToggleBtn.addEventListener('click', function () {
+                    setTimeout(() => {
+                        initializeCharts();
+                        generateAIInsights();
+                    }, 100);
+                });
+            }
 
             // Modal Open Functions
             function openPayModal(goalName, remainingAmount, goalId) {
@@ -1108,29 +2033,6 @@
                     .catch(() => alert('Error creating goal. Please try again.'));
             });
 
-            document.getElementById('budgetForm').addEventListener('submit', function (e) {
-                e.preventDefault();
-                const formData = new URLSearchParams();
-                formData.append('budgetName', document.getElementById('budgetName').value);
-                formData.append('budgetAmount', document.getElementById('newBudgetAmount').value);
-
-                fetch('/home/budgetplanner', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData.toString()
-                })
-                    .then(response => {
-                        if (response.ok || response.redirected) {
-                            bootstrap.Modal.getInstance(document.getElementById('addBudgetModal')).hide();
-                            this.reset();
-                            window.location.reload();
-                        } else {
-                            alert('Failed to create budget. Please try again.');
-                        }
-                    })
-                    .catch(() => alert('Error creating budget. Please try again.'));
-            });
-
             document.getElementById('expenseForm').addEventListener('submit', function (e) {
                 e.preventDefault();
                 const formData = new URLSearchParams();
@@ -1205,6 +2107,8 @@
                             showTable(roundedData);
                             const resultModal = new bootstrap.Modal(document.getElementById('responseModal'));
                             resultModal.show();
+                            // Clear form after successful prediction
+                            document.getElementById('predictForm').reset();
                         } else {
                             alert('Prediction Error: ' + (data.error || 'Could not connect to the AI model. Make sure the Python API is running on port 5000.'));
                         }
@@ -1845,6 +2749,200 @@
                 }
             }
 
+            // Theme Toggle Functionality
+            (function() {
+                const htmlRoot = document.getElementById('html-root');
+                const themeToggleBtn = document.getElementById('themeToggle');
+                const themeIcon = document.getElementById('themeIcon');
+                const themeText = document.getElementById('themeText');
+
+                // Load saved theme or default to dark
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                htmlRoot.setAttribute('data-bs-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+
+                // Toggle theme on button click
+                themeToggleBtn.addEventListener('click', function() {
+                    const currentTheme = htmlRoot.getAttribute('data-bs-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                    htmlRoot.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    updateThemeIcon(newTheme);
+                });
+
+                // Update icon and text based on current theme
+                function updateThemeIcon(theme) {
+                    if (themeIcon && themeText) {
+                        if (theme === 'dark') {
+                            themeIcon.className = 'bi bi-sun-fill';
+                            themeText.textContent = 'Light Mode';
+                        } else {
+                            themeIcon.className = 'bi bi-moon-fill';
+                            themeText.textContent = 'Dark Mode';
+                        }
+                    }
+                }
+            })();
+
+        </script>
+
+        <script>
+            // ================================================
+            // AI FINANCIAL ADVISOR CHATBOT
+            // ================================================
+            (function() {
+                const chatButton = document.getElementById('chatButton');
+                const chatModal = document.getElementById('chatModal');
+                const chatClose = document.getElementById('chatClose');
+                const chatBody = document.getElementById('chatBody');
+                const chatInput = document.getElementById('chatInput');
+                const chatSendBtn = document.getElementById('chatSendBtn');
+
+                // Toggle chat modal
+                chatButton.addEventListener('click', function() {
+                    chatModal.classList.toggle('active');
+                    if (chatModal.classList.contains('active')) {
+                        chatInput.focus();
+                    }
+                });
+
+                chatClose.addEventListener('click', function() {
+                    chatModal.classList.remove('active');
+                });
+
+                // Handle suggestion chips
+                document.querySelectorAll('.suggestion-chip').forEach(chip => {
+                    chip.addEventListener('click', function() {
+                        const question = this.getAttribute('data-question');
+                        sendMessage(question);
+                    });
+                });
+
+                // Send message on button click
+                chatSendBtn.addEventListener('click', function() {
+                    const message = chatInput.value.trim();
+                    if (message) {
+                        sendMessage(message);
+                    }
+                });
+
+                // Send message on Enter key
+                chatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const message = chatInput.value.trim();
+                        if (message) {
+                            sendMessage(message);
+                        }
+                    }
+                });
+
+                function sendMessage(message) {
+                    // Add user message to chat
+                    addMessage(message, 'user');
+                    chatInput.value = '';
+
+                    // Show typing indicator
+                    showTypingIndicator();
+
+                    // Prepare context data
+                    const contextData = {
+                        totalExpenses: expenseData.amounts.reduce((a, b) => a + b, 0),
+                        expenseCategories: expenseData.labels,
+                        expenseAmounts: expenseData.amounts,
+                        totalGoals: goalData.names.length,
+                        goalNames: goalData.names,
+                        goalProgress: goalData.progress,
+                        totalBudget: budgetData.totalBudget || 0
+                    };
+
+                    // Send to backend
+                    fetch('/home/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            context: contextData
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        removeTypingIndicator();
+                        if (data.success) {
+                            addMessage(data.response, 'bot');
+                        } else {
+                            addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+                        }
+                    })
+                    .catch(error => {
+                        removeTypingIndicator();
+                        console.error('Chat error:', error);
+                        addMessage('Sorry, I am having trouble connecting. Please try again later.', 'bot');
+                    });
+                }
+
+                function addMessage(text, type) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'chat-message ' + type;
+
+                    const avatarDiv = document.createElement('div');
+                    avatarDiv.className = 'message-avatar ' + type;
+                    const icon = document.createElement('i');
+                    icon.className = type === 'bot' ? 'bi bi-robot' : 'bi bi-person-fill';
+                    avatarDiv.appendChild(icon);
+
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'message-content ' + type;
+                    contentDiv.textContent = text;
+
+                    messageDiv.appendChild(avatarDiv);
+                    messageDiv.appendChild(contentDiv);
+
+                    // Remove suggestions after first user message
+                    const suggestions = chatBody.querySelector('.chat-suggestions');
+                    if (suggestions && type === 'user') {
+                        suggestions.remove();
+                    }
+
+                    chatBody.appendChild(messageDiv);
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }
+
+                function showTypingIndicator() {
+                    const typingDiv = document.createElement('div');
+                    typingDiv.className = 'chat-message';
+                    typingDiv.id = 'typingIndicator';
+
+                    const avatarDiv = document.createElement('div');
+                    avatarDiv.className = 'message-avatar bot';
+                    const icon = document.createElement('i');
+                    icon.className = 'bi bi-robot';
+                    avatarDiv.appendChild(icon);
+
+                    const indicatorDiv = document.createElement('div');
+                    indicatorDiv.className = 'typing-indicator';
+                    for (let i = 0; i < 3; i++) {
+                        const dot = document.createElement('div');
+                        dot.className = 'typing-dot';
+                        indicatorDiv.appendChild(dot);
+                    }
+
+                    typingDiv.appendChild(avatarDiv);
+                    typingDiv.appendChild(indicatorDiv);
+
+                    chatBody.appendChild(typingDiv);
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }
+
+                function removeTypingIndicator() {
+                    const typingIndicator = document.getElementById('typingIndicator');
+                    if (typingIndicator) {
+                        typingIndicator.remove();
+                    }
+                }
+            })();
         </script>
     </body>
 

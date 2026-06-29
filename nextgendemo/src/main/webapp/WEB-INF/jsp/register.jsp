@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="dark" id="html-root">
 
 <head>
     <meta charset="UTF-8">
@@ -22,6 +22,64 @@
             --success: #34a853;
             --warning: #fbbc04;
             --danger: #ea4335;
+        }
+
+        /* Light theme variables */
+        [data-bs-theme="light"] {
+            --bg-body: #f5f5f5;
+            --surface: #ffffff;
+            --surface-hover: #f0f0f0;
+            --primary: #1a73e8;
+            --primary-hover: #1557b0;
+            --text-main: #202124;
+            --text-muted: #5f6368;
+            --border: #dadce0;
+            --success: #1e8e3e;
+            --warning: #f9ab00;
+            --danger: #d93025;
+        }
+
+        /* Light mode specific overrides */
+        [data-bs-theme="light"] .form-control {
+            background-color: #ffffff !important;
+            color: var(--text-main) !important;
+        }
+
+        [data-bs-theme="light"] .form-control:focus {
+            background-color: #ffffff !important;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2) !important;
+        }
+
+        [data-bs-theme="light"] .form-control::placeholder {
+            color: #80868b;
+        }
+
+        [data-bs-theme="light"] .password-strength {
+            background-color: #e0e0e0;
+        }
+
+        [data-bs-theme="light"] .alert-danger {
+            background-color: #fce8e6;
+            border-color: #ea4335;
+            color: #c5221f;
+        }
+
+        [data-bs-theme="light"] .auth-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Light mode button overrides */
+        [data-bs-theme="light"] .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff !important;
+            font-weight: 500;
+        }
+
+        [data-bs-theme="light"] .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            color: #ffffff !important;
         }
 
         body {
@@ -262,10 +320,38 @@
         .form-group {
             margin-bottom: 1.25rem;
         }
+
+        /* Theme toggle button - floating in top right */
+        .btn-theme-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 8px;
+            padding: 10px 14px;
+            transition: all 0.2s;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 1.2rem;
+        }
+
+        .btn-theme-toggle:hover {
+            background-color: var(--surface-hover);
+            color: var(--text-main);
+            border-color: var(--text-muted);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- Theme Toggle Button -->
+    <button id="themeToggle" class="btn-theme-toggle" aria-label="Toggle theme">
+        <i id="themeIcon" class="fas fa-sun"></i>
+    </button>
 
     <div class="auth-card">
         <h3 class="auth-title">Create your account</h3>
@@ -590,6 +676,35 @@
                 }
             });
         });
+
+        // Theme Toggle Functionality
+        (function() {
+            const htmlRoot = document.getElementById('html-root');
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+
+            // Load saved theme or default to dark
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            htmlRoot.setAttribute('data-bs-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+
+            // Toggle theme on button click
+            themeToggleBtn.addEventListener('click', function() {
+                const currentTheme = htmlRoot.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                htmlRoot.setAttribute('data-bs-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+
+            // Update icon based on current theme
+            function updateThemeIcon(theme) {
+                if (themeIcon) {
+                    themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+        })();
     </script>
 </body>
 

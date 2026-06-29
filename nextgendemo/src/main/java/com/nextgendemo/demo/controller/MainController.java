@@ -32,6 +32,7 @@ import com.nextgendemo.demo.Home.ExpenseTracker.Service.GeminiVisionService;
 import com.nextgendemo.demo.Home.GoalSetter.Entity.AmountSet;
 import com.nextgendemo.demo.Home.GoalSetter.Service.AmountSetService;
 import com.nextgendemo.demo.Home.GoalSetter.Service.GoalAllocationService;
+import com.nextgendemo.demo.Home.Chat.Service.FinancialAdvisorChatService;
 import com.nextgendemo.demo.Register.Service.RegisterService;
 import com.nextgendemo.demo.Register.Service.RegisterService.RegistrationResult;
 
@@ -56,6 +57,8 @@ public class MainController {
     private ExpenseService es;
     @Autowired
     private GoalAllocationService goalAllocationService;
+    @Autowired
+    private FinancialAdvisorChatService chatService;
 
     // Home Page Mapping
     @GetMapping("/")
@@ -566,6 +569,49 @@ public class MainController {
 	            response.put("message", "Allocation applied successfully to your goals!");
 	        } else {
 	            response.put("error", "Failed to apply allocation");
+	        }
+
+	        return response;
+	    }
+
+	    /**
+	     * AI Financial Advisor Chatbot Endpoint
+	     */
+	    @PostMapping("/home/chat")
+	    @ResponseBody
+	    public Map<String, Object> handleChatMessage(
+	            @RequestBody Map<String, Object> requestData,
+	            HttpSession session) {
+
+	        Map<String, Object> response = new HashMap<>();
+	        String userName = (String) session.getAttribute("userName");
+
+	        if (userName == null) {
+	            response.put("success", false);
+	            response.put("error", "User not logged in");
+	            return response;
+	        }
+
+	        try {
+	            String userMessage = (String) requestData.get("message");
+	            @SuppressWarnings("unchecked")
+	            Map<String, Object> context = (Map<String, Object>) requestData.get("context");
+
+	            if (userMessage == null || userMessage.trim().isEmpty()) {
+	                response.put("success", false);
+	                response.put("error", "Empty message");
+	                return response;
+	            }
+
+	            // Get AI response
+	            String aiResponse = chatService.getFinancialAdvice(userMessage, context);
+
+	            response.put("success", true);
+	            response.put("response", aiResponse);
+
+	        } catch (Exception e) {
+	            response.put("success", false);
+	            response.put("error", "Failed to process chat message: " + e.getMessage());
 	        }
 
 	        return response;
