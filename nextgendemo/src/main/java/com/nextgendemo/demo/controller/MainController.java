@@ -419,10 +419,14 @@ public class MainController {
 	    
 	    // for the setting the expense tracker
 	    @PostMapping("/home/expensetracker")
-	    public String expenseTracker(@RequestParam String expenseName, @RequestParam int expenseAmount,HttpSession session) {
+	    public String expenseTracker(
+	            @RequestParam String expenseName,
+	            @RequestParam int expenseAmount,
+	            @RequestParam(required = false) String expenseDate,
+	            HttpSession session) {
 	    	String username = (String) session.getAttribute("userName");
-	    	System.out.println(username+" "+expenseName+" "+expenseAmount);
-	    	boolean amntBgtS= es.setExpense(username,expenseName, expenseAmount);
+	    	System.out.println(username+" "+expenseName+" "+expenseAmount+" "+expenseDate);
+	    	boolean amntBgtS= es.setExpense(username,expenseName, expenseAmount, expenseDate);
 	        if (amntBgtS) {
 	            return "redirect:/home"; // Redirect to the home page
 	        } else {

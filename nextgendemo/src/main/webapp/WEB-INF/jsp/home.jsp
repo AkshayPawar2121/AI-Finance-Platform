@@ -417,6 +417,59 @@
                 background-color: var(--surface-hover);
             }
 
+            /* Date input wrapper */
+            .date-input-wrapper {
+                position: relative;
+            }
+
+            .date-filter-input {
+                cursor: pointer;
+            }
+
+            /* Make mm/dd/yyyy INVISIBLE (transparent) */
+            .date-filter-input::-webkit-datetime-edit-text,
+            .date-filter-input::-webkit-datetime-edit-month-field,
+            .date-filter-input::-webkit-datetime-edit-day-field,
+            .date-filter-input::-webkit-datetime-edit-year-field {
+                color: transparent !important;
+            }
+
+            /* Show actual date when selected */
+            .date-filter-input:valid::-webkit-datetime-edit-text,
+            .date-filter-input:valid::-webkit-datetime-edit-month-field,
+            .date-filter-input:valid::-webkit-datetime-edit-day-field,
+            .date-filter-input:valid::-webkit-datetime-edit-year-field {
+                color: var(--text-main) !important;
+            }
+
+            /* "From Date" / "To Date" LABEL - clickable */
+            .date-placeholder {
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                display: flex;
+                align-items: center;
+                padding-left: 12px;
+                color: #9aa0a6;
+                font-size: 1rem;
+                pointer-events: none;
+                z-index: 1;
+            }
+
+            /* Hide when date selected */
+            .date-filter-input:valid + .date-placeholder {
+                display: none;
+            }
+
+            /* Calendar icon */
+            .date-filter-input::-webkit-calendar-picker-indicator {
+                position: relative;
+                z-index: 2;
+                cursor: pointer;
+            }
+
             /* Theme toggle button */
             .btn-theme-toggle {
                 background-color: transparent;
@@ -1106,10 +1159,34 @@
                     </div>
                 </div>
 
+                <!-- Search Section -->
+                <div class="card mb-4" style="background-color: var(--surface); border: 1px solid var(--border);">
+                    <div class="card-body p-3">
+                        <div class="row g-3">
+                            <div class="col-md-10">
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background-color: var(--bg-body); border-color: var(--border);">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" id="expenseSearchInput" class="form-control"
+                                           placeholder="Search by name or amount..."
+                                           onkeyup="filterExpenses()">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-secondary w-100" onclick="clearExpenseFilters()">
+                                    <i class="bi bi-x-circle"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table" id="expensesTable">
                         <thead>
                             <tr>
+                                <th>Date</th>
                                 <th>Expense Name</th>
                                 <th>Amount</th>
                                 <th>Actions</th>
@@ -1117,9 +1194,22 @@
                         </thead>
                         <tbody>
                             <c:forEach var="expense" items="${userExpenses}">
-                                <tr>
+                                <tr class="expense-row"
+                                    data-name="${expense.expenseName}"
+                                    data-amount="${expense.expenseAmount}"
+                                    data-date="${expense.expenseDate}">
+                                    <td class="expense-date">
+                                        <c:choose>
+                                            <c:when test="${expense.expenseDate != null}">
+                                                ${expense.expenseDate}
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="text-muted">No date</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>${expense.expenseName}</td>
-                                    <td>${expense.expenseAmount}</td>
+                                    <td>Rs.${expense.expenseAmount}</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm rounded-pill"
                                             onclick="openExpensePayModal('${expense.expenseAmount}', '${expense.id}')">Edit</button>
@@ -1130,6 +1220,12 @@
                             </c:forEach>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- No results message -->
+                <div id="noExpensesFound" class="text-center py-5" style="display: none;">
+                    <i class="bi bi-search" style="font-size: 3rem; color: var(--text-muted);"></i>
+                    <p class="text-muted mt-3">No expenses found matching your criteria</p>
                 </div>
             </div>
 
@@ -1192,6 +1288,10 @@
                                 <label class="form-label">Amount</label>
                                 <input type="number" class="form-control" id="newExpenseAmount" name="expenseAmount"
                                     min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" id="expenseDate" name="expenseDate" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill">Add Expense</button>
                         </form>
@@ -2038,6 +2138,7 @@
                 const formData = new URLSearchParams();
                 formData.append('expenseName', document.getElementById('expenseName').value);
                 formData.append('expenseAmount', document.getElementById('newExpenseAmount').value);
+                formData.append('expenseDate', document.getElementById('expenseDate').value);
 
                 fetch('/home/expensetracker', {
                     method: 'POST',
@@ -2785,6 +2886,65 @@
                 }
             })();
 
+        </script>
+
+        <script>
+            // ================================================
+            // EXPENSE SEARCH AND FILTER
+            // ================================================
+            function filterExpenses() {
+                const searchText = document.getElementById('expenseSearchInput').value.toLowerCase();
+                const rows = document.querySelectorAll('.expense-row');
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const name = row.getAttribute('data-name').toLowerCase();
+                    const amount = row.getAttribute('data-amount');
+
+                    // Search filter only
+                    const matchesSearch = !searchText ||
+                        name.includes(searchText) ||
+                        amount.includes(searchText);
+
+                    // Show/hide row
+                    if (matchesSearch) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Show/hide "no results" message
+                const noResultsDiv = document.getElementById('noExpensesFound');
+                const tableDiv = document.getElementById('expensesTable');
+                if (visibleCount === 0) {
+                    noResultsDiv.style.display = 'block';
+                    tableDiv.style.display = 'none';
+                } else {
+                    noResultsDiv.style.display = 'none';
+                    tableDiv.style.display = 'table';
+                }
+            }
+
+            function clearExpenseFilters() {
+                document.getElementById('expenseSearchInput').value = '';
+                filterExpenses();
+            }
+
+            // Set today's date as default when adding new expense
+            document.addEventListener('DOMContentLoaded', function() {
+                const addExpenseModal = document.getElementById('addExpenseModal');
+                if (addExpenseModal) {
+                    addExpenseModal.addEventListener('show.bs.modal', function() {
+                        const dateInput = document.getElementById('expenseDate');
+                        if (dateInput && !dateInput.value) {
+                            const today = new Date().toISOString().split('T')[0];
+                            dateInput.value = today;
+                        }
+                    });
+                }
+            });
         </script>
 
         <script>
