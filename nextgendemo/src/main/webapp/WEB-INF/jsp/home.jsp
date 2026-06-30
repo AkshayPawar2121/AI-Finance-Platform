@@ -3214,12 +3214,11 @@
                     // Prepare context data
                     const contextData = {
                         totalExpenses: expenseData.amounts.reduce((a, b) => a + b, 0),
-                        expenseCategories: expenseData.labels,
+                        expenseCategories: expenseData.categories,
                         expenseAmounts: expenseData.amounts,
                         totalGoals: goalData.names.length,
                         goalNames: goalData.names,
-                        goalProgress: goalData.progress,
-                        totalBudget: budgetData.totalBudget || 0
+                        goalProgress: goalData.progress
                     };
 
                     // Send to backend
