@@ -1,5 +1,6 @@
 package com.nextgendemo.demo.Home.ExpenseTracker.Entity;
 
+import java.time.LocalDate;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,10 +17,14 @@ public class ExpenseTrack {
 	private Long id;
 	@Column(name="UserName",nullable=false)
 	private String userName;
-	@Column(name="Expense_Name",nullable=false)	
+	@Column(name="Expense_Name",nullable=false)
 	private String expenseName;
 	@Column(name="Expense_Amount",nullable=false)
 	private int expenseAmount;
+	@Column(name="Expense_Date")
+	private LocalDate expenseDate;
+	@Column(name="Category")
+	private String category;
 	public Long getId() {
 		return id;
 	}
@@ -44,20 +49,33 @@ public class ExpenseTrack {
 	public void setExpenseAmount(int expenseAmount) {
 		this.expenseAmount = expenseAmount;
 	}
-	public ExpenseTrack(Long id, String userName, String expenseName, int expenseAmount) {
+	public LocalDate getExpenseDate() {
+		return expenseDate;
+	}
+	public void setExpenseDate(LocalDate expenseDate) {
+		this.expenseDate = expenseDate;
+	}
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
+	}
+	public ExpenseTrack(Long id, String userName, String expenseName, int expenseAmount, LocalDate expenseDate) {
 		super();
 		this.id = id;
 		this.userName = userName;
 		this.expenseName = expenseName;
 		this.expenseAmount = expenseAmount;
+		this.expenseDate = expenseDate;
 	}
 	public ExpenseTrack() {
 		super();
-		// TODO Auto-generated constructor stub
+		this.expenseDate = LocalDate.now(); // Default to today
 	}
 	@Override
 	public String toString() {
 		return "ExpenseTrack [id=" + id + ", userName=" + userName + ", expenseName=" + expenseName + ", expenseAmount="
-				+ expenseAmount + "]";
+				+ expenseAmount + ", expenseDate=" + expenseDate + "]";
 	}
 }

@@ -417,6 +417,59 @@
                 background-color: var(--surface-hover);
             }
 
+            /* Date input wrapper */
+            .date-input-wrapper {
+                position: relative;
+            }
+
+            .date-filter-input {
+                cursor: pointer;
+            }
+
+            /* Make mm/dd/yyyy INVISIBLE (transparent) */
+            .date-filter-input::-webkit-datetime-edit-text,
+            .date-filter-input::-webkit-datetime-edit-month-field,
+            .date-filter-input::-webkit-datetime-edit-day-field,
+            .date-filter-input::-webkit-datetime-edit-year-field {
+                color: transparent !important;
+            }
+
+            /* Show actual date when selected */
+            .date-filter-input:valid::-webkit-datetime-edit-text,
+            .date-filter-input:valid::-webkit-datetime-edit-month-field,
+            .date-filter-input:valid::-webkit-datetime-edit-day-field,
+            .date-filter-input:valid::-webkit-datetime-edit-year-field {
+                color: var(--text-main) !important;
+            }
+
+            /* "From Date" / "To Date" LABEL - clickable */
+            .date-placeholder {
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                display: flex;
+                align-items: center;
+                padding-left: 12px;
+                color: #9aa0a6;
+                font-size: 1rem;
+                pointer-events: none;
+                z-index: 1;
+            }
+
+            /* Hide when date selected */
+            .date-filter-input:valid + .date-placeholder {
+                display: none;
+            }
+
+            /* Calendar icon */
+            .date-filter-input::-webkit-calendar-picker-indicator {
+                position: relative;
+                z-index: 2;
+                cursor: pointer;
+            }
+
             /* Theme toggle button */
             .btn-theme-toggle {
                 background-color: transparent;
@@ -837,7 +890,27 @@
                     <!-- Expense Breakdown Chart -->
                     <div class="col-md-6">
                         <div class="chart-card">
-                            <h5 class="chart-title">Expense Breakdown</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="chart-title mb-0">Expense Breakdown</h5>
+                                <select id="expenseTimeRange" class="form-select form-select-sm" style="width: auto;" onchange="updateExpenseChart()">
+                                    <option value="all">All Time</option>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month" selected>This Month</option>
+                                    <option value="year">This Year</option>
+                                    <option value="custom">Custom Range</option>
+                                </select>
+                            </div>
+                            <div id="customRangeInputs" style="display: none; margin-bottom: 1rem;">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="date" id="customStartDate" class="form-control form-control-sm" onchange="updateExpenseChart()">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="date" id="customEndDate" class="form-control form-control-sm" onchange="updateExpenseChart()">
+                                    </div>
+                                </div>
+                            </div>
                             <canvas id="expenseDonutChart"></canvas>
                         </div>
                     </div>
@@ -884,53 +957,136 @@
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Goal Name</th>
-                                <th>Target Amount</th>
-                                <th>Remaining</th>
-                                <th>Priority</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="goal" items="${userGoals}">
-                                <tr>
-                                    <td>${goal.goalName}</td>
-                                    <td>&#8377;${goal.target}</td>
-                                    <td>&#8377;${goal.target - (goal.remainingAmount != null ? goal.remainingAmount :
-                                        0)}</td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${goal.priority == 1}"><span class="badge"
-                                                    style="background:#f28b82;">1 - Highest</span></c:when>
-                                            <c:when test="${goal.priority == 2}"><span class="badge"
-                                                    style="background:#fbbc04; color:#202124;">2 - High</span></c:when>
-                                            <c:when test="${goal.priority == 3}"><span class="badge"
-                                                    style="background:#8ab4f8; color:#202124;">3 - Medium</span>
-                                            </c:when>
-                                            <c:when test="${goal.priority == 4}"><span class="badge"
-                                                    style="background:#81c995; color:#202124;">4 - Low</span></c:when>
-                                            <c:otherwise><span class="badge" style="background:#3c4043;">5 -
-                                                    Lowest</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm rounded-pill"
-                                            onclick="openPayModal('${goal.goalName}', '${goal.target - (goal.remainingAmount != null ? goal.remainingAmount : 0)}', '${goal.id}')">
-                                            Pay
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm rounded-pill ms-2"
-                                            onclick="deleteGoal('${goal.id}')">
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
+                <!-- Tabs for Ongoing/Achieved Goals -->
+                <ul class="nav nav-pills mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="ongoing-goals-tab" data-bs-toggle="pill"
+                                data-bs-target="#ongoing-goals" type="button" role="tab"
+                                aria-controls="ongoing-goals" aria-selected="true">
+                            <i class="bi bi-hourglass-split"></i> Ongoing
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="achieved-goals-tab" data-bs-toggle="pill"
+                                data-bs-target="#achieved-goals" type="button" role="tab"
+                                aria-controls="achieved-goals" aria-selected="false">
+                            <i class="bi bi-trophy-fill"></i> Achieved
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Ongoing Goals Tab -->
+                    <div class="tab-pane fade show active" id="ongoing-goals" role="tabpanel" aria-labelledby="ongoing-goals-tab">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Goal Name</th>
+                                        <th>Target Amount</th>
+                                        <th>Remaining</th>
+                                        <th>Priority</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="goal" items="${userGoals}">
+                                        <c:set var="remaining" value="${goal.target - (goal.remainingAmount != null ? goal.remainingAmount : 0)}" />
+                                        <c:if test="${remaining > 0}">
+                                            <tr>
+                                                <td>${goal.goalName}</td>
+                                                <td>&#8377;${goal.target}</td>
+                                                <td>&#8377;${remaining}</td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${goal.priority == 1}"><span class="badge"
+                                                                style="background:#f28b82;">1 - Highest</span></c:when>
+                                                        <c:when test="${goal.priority == 2}"><span class="badge"
+                                                                style="background:#fbbc04; color:#202124;">2 - High</span></c:when>
+                                                        <c:when test="${goal.priority == 3}"><span class="badge"
+                                                                style="background:#8ab4f8; color:#202124;">3 - Medium</span>
+                                                        </c:when>
+                                                        <c:when test="${goal.priority == 4}"><span class="badge"
+                                                                style="background:#81c995; color:#202124;">4 - Low</span></c:when>
+                                                        <c:otherwise><span class="badge" style="background:#3c4043;">5 -
+                                                                Lowest</span></c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-primary btn-sm rounded-pill"
+                                                        onclick="openPayModal('${goal.goalName}', '${remaining}', '${goal.id}')">
+                                                        Pay
+                                                    </button>
+                                                    <button class="btn btn-outline-danger btn-sm rounded-pill ms-2"
+                                                        onclick="deleteGoal('${goal.id}')">
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </c:if>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Achieved Goals Tab -->
+                    <div class="tab-pane fade" id="achieved-goals" role="tabpanel" aria-labelledby="achieved-goals-tab">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Goal Name</th>
+                                        <th>Target Amount</th>
+                                        <th>Achieved</th>
+                                        <th>Priority</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="goal" items="${userGoals}">
+                                        <c:set var="remaining" value="${goal.target - (goal.remainingAmount != null ? goal.remainingAmount : 0)}" />
+                                        <c:if test="${remaining <= 0}">
+                                            <tr>
+                                                <td>
+                                                    <i class="bi bi-trophy-fill text-warning me-2"></i>
+                                                    ${goal.goalName}
+                                                </td>
+                                                <td>&#8377;${goal.target}</td>
+                                                <td>
+                                                    <span class="badge" style="background:#81c995;">
+                                                        <i class="bi bi-check-circle-fill"></i> Completed
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${goal.priority == 1}"><span class="badge"
+                                                                style="background:#f28b82;">1 - Highest</span></c:when>
+                                                        <c:when test="${goal.priority == 2}"><span class="badge"
+                                                                style="background:#fbbc04; color:#202124;">2 - High</span></c:when>
+                                                        <c:when test="${goal.priority == 3}"><span class="badge"
+                                                                style="background:#8ab4f8; color:#202124;">3 - Medium</span>
+                                                        </c:when>
+                                                        <c:when test="${goal.priority == 4}"><span class="badge"
+                                                                style="background:#81c995; color:#202124;">4 - Low</span></c:when>
+                                                        <c:otherwise><span class="badge" style="background:#3c4043;">5 -
+                                                                Lowest</span></c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-outline-danger btn-sm rounded-pill"
+                                                        onclick="deleteGoal('${goal.id}')">
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </c:if>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1106,10 +1262,34 @@
                     </div>
                 </div>
 
+                <!-- Search Section -->
+                <div class="card mb-4" style="background-color: var(--surface); border: 1px solid var(--border);">
+                    <div class="card-body p-3">
+                        <div class="row g-3">
+                            <div class="col-md-10">
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background-color: var(--bg-body); border-color: var(--border);">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" id="expenseSearchInput" class="form-control"
+                                           placeholder="Search by name or amount..."
+                                           onkeyup="filterExpenses()">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-secondary w-100" onclick="clearExpenseFilters()">
+                                    <i class="bi bi-x-circle"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table" id="expensesTable">
                         <thead>
                             <tr>
+                                <th>Date</th>
                                 <th>Expense Name</th>
                                 <th>Amount</th>
                                 <th>Actions</th>
@@ -1117,9 +1297,22 @@
                         </thead>
                         <tbody>
                             <c:forEach var="expense" items="${userExpenses}">
-                                <tr>
+                                <tr class="expense-row"
+                                    data-name="${expense.expenseName}"
+                                    data-amount="${expense.expenseAmount}"
+                                    data-date="${expense.expenseDate}">
+                                    <td class="expense-date">
+                                        <c:choose>
+                                            <c:when test="${expense.expenseDate != null}">
+                                                ${expense.expenseDate}
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="text-muted">No date</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>${expense.expenseName}</td>
-                                    <td>${expense.expenseAmount}</td>
+                                    <td>Rs.${expense.expenseAmount}</td>
                                     <td>
                                         <button class="btn btn-primary btn-sm rounded-pill"
                                             onclick="openExpensePayModal('${expense.expenseAmount}', '${expense.id}')">Edit</button>
@@ -1130,6 +1323,12 @@
                             </c:forEach>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- No results message -->
+                <div id="noExpensesFound" class="text-center py-5" style="display: none;">
+                    <i class="bi bi-search" style="font-size: 3rem; color: var(--text-muted);"></i>
+                    <p class="text-muted mt-3">No expenses found matching your criteria</p>
                 </div>
             </div>
 
@@ -1189,9 +1388,27 @@
                                 <input type="text" class="form-control" id="expenseName" name="expenseName" required>
                             </div>
                             <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" id="expenseCategory" name="expenseCategory" required>
+                                    <option value="">Select category...</option>
+                                    <option value="Food & Dining">Food & Dining</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Bills & Utilities">Bills & Utilities</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
                                 <label class="form-label">Amount</label>
                                 <input type="number" class="form-control" id="newExpenseAmount" name="expenseAmount"
                                     min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" id="expenseDate" name="expenseDate" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 rounded-pill">Add Expense</button>
                         </form>
@@ -1263,6 +1480,20 @@
                     <div class="modal-body">
                         <form id="paymentExpenseForm">
                             <input type="hidden" id="expenseId" name="expenseId">
+                            <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" id="editExpenseCategory" name="expenseCategory" required>
+                                    <option value="">Select category...</option>
+                                    <option value="Food & Dining">Food & Dining</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Bills & Utilities">Bills & Utilities</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
                             <div class="mb-3">
                                 <label class="form-label">New Amount</label>
                                 <input type="number" class="form-control" id="expenseAmount" name="expenseAmount"
@@ -1538,21 +1769,16 @@
             // Prepare expense data from JSP
             const expenseData = {
                 labels: [],
-                amounts: []
+                amounts: [],
+                categories: [],
+                dates: []
             };
 
             <c:forEach var="expense" items="${userExpenses}">
                 expenseData.labels.push('${expense.expenseName}');
                 expenseData.amounts.push(${expense.expenseAmount});
-            </c:forEach>
-
-            // Prepare budget data from JSP
-            const budgetData = {
-                totalBudget: 0
-            };
-
-            <c:forEach var="budget" items="${userBudgets}">
-                budgetData.totalBudget += ${budget.budget_amount};
+                expenseData.categories.push('${expense.category != null ? expense.category : "Other"}');
+                expenseData.dates.push('${expense.expenseDate != null ? expense.expenseDate : ""}');
             </c:forEach>
 
             // Prepare goal data from JSP
@@ -1590,23 +1816,97 @@
                 };
             }
 
+            // Filter expenses by date range
+            function getFilteredExpenses() {
+                const timeRange = document.getElementById('expenseTimeRange').value;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                let startDate = null;
+                let endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+
+                if (timeRange === 'all') {
+                    return { indices: Array.from({ length: expenseData.dates.length }, (_, i) => i) };
+                }
+
+                if (timeRange === 'today') {
+                    startDate = new Date(today);
+                } else if (timeRange === 'week') {
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+                } else if (timeRange === 'month') {
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                } else if (timeRange === 'year') {
+                    startDate = new Date(today.getFullYear(), 0, 1);
+                } else if (timeRange === 'custom') {
+                    const customStart = document.getElementById('customStartDate').value;
+                    const customEnd = document.getElementById('customEndDate').value;
+                    if (customStart && customEnd) {
+                        startDate = new Date(customStart);
+                        endDate = new Date(customEnd);
+                        endDate.setHours(23, 59, 59, 999);
+                    } else {
+                        return { indices: [] };
+                    }
+                }
+
+                const filteredIndices = [];
+                for (let i = 0; i < expenseData.dates.length; i++) {
+                    const dateStr = expenseData.dates[i];
+                    if (!dateStr) continue;
+                    const expenseDate = new Date(dateStr);
+                    if (expenseDate >= startDate && expenseDate <= endDate) {
+                        filteredIndices.push(i);
+                    }
+                }
+
+                return { indices: filteredIndices };
+            }
+
             // 1. Create Expense Donut Chart
-            function createExpenseDonutChart() {
+            function createExpenseDonutChart(filteredIndices = null) {
                 const ctx = document.getElementById('expenseDonutChart');
                 if (!ctx) return null;
 
                 const colors = getChartColors();
 
-                // Aggregate expenses by name
+                // Use filtered indices or all data
+                const indices = filteredIndices || Array.from({ length: expenseData.labels.length }, (_, i) => i);
+
+                // Aggregate expenses by category
                 const aggregated = {};
-                for (let i = 0; i < expenseData.labels.length; i++) {
-                    const name = expenseData.labels[i];
+                for (let i of indices) {
+                    const category = expenseData.categories[i] || 'Other';
                     const amount = expenseData.amounts[i];
-                    aggregated[name] = (aggregated[name] || 0) + amount;
+                    aggregated[category] = (aggregated[category] || 0) + amount;
                 }
 
-                const labels = Object.keys(aggregated);
-                const data = Object.values(aggregated);
+                // Sort by amount (descending)
+                const sorted = Object.entries(aggregated)
+                    .sort((a, b) => b[1] - a[1]);
+
+                // Take top 7, group rest as "Others"
+                const TOP_N = 7;
+                let labels = [];
+                let data = [];
+
+                if (sorted.length <= TOP_N) {
+                    // Show all if less than limit
+                    labels = sorted.map(e => e[0]);
+                    data = sorted.map(e => e[1]);
+                } else {
+                    // Top N + Others
+                    labels = sorted.slice(0, TOP_N).map(e => e[0]);
+                    data = sorted.slice(0, TOP_N).map(e => e[1]);
+
+                    // Sum remaining into "Others"
+                    const othersTotal = sorted.slice(TOP_N).reduce((sum, e) => sum + e[1], 0);
+                    if (othersTotal > 0) {
+                        labels.push('Others');
+                        data.push(othersTotal);
+                    }
+                }
 
                 return new Chart(ctx, {
                     type: 'doughnut',
@@ -1696,6 +1996,37 @@
                 });
             }
 
+            // Update expense chart based on time range filter
+            function updateExpenseChart() {
+                const timeRange = document.getElementById('expenseTimeRange').value;
+                const customRangeInputs = document.getElementById('customRangeInputs');
+
+                // Show/hide custom date inputs
+                if (timeRange === 'custom') {
+                    customRangeInputs.style.display = 'block';
+                    // Set default dates if empty
+                    if (!document.getElementById('customStartDate').value) {
+                        const today = new Date();
+                        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                        document.getElementById('customStartDate').value = firstDay.toISOString().split('T')[0];
+                        document.getElementById('customEndDate').value = today.toISOString().split('T')[0];
+                    }
+                } else {
+                    customRangeInputs.style.display = 'none';
+                }
+
+                // Get filtered data
+                const { indices } = getFilteredExpenses();
+
+                // Destroy existing chart
+                if (chartInstances.expenseDonut) {
+                    chartInstances.expenseDonut.destroy();
+                }
+
+                // Create new chart with filtered data
+                chartInstances.expenseDonut = createExpenseDonutChart(indices);
+            }
+
             // Initialize all charts
             function initializeCharts() {
                 // Destroy existing charts if they exist
@@ -1713,52 +2044,17 @@
                 const insights = [];
 
                 // Safety check: ensure data is available
-                if (!expenseData || !budgetData || !goalData) {
+                if (!expenseData || !goalData) {
                     console.error('Data not available for insights');
                     return;
                 }
 
                 // Calculate totals
                 const totalExpenses = expenseData.amounts.length > 0 ? expenseData.amounts.reduce((a, b) => a + b, 0) : 0;
-                const totalBudget = budgetData.totalBudget || 0;
                 const totalGoalTargets = goalData.targets.length > 0 ? goalData.targets.reduce((a, b) => a + b, 0) : 0;
                 let totalGoalAchieved = 0;
                 for (let i = 0; i < goalData.targets.length; i++) {
                     totalGoalAchieved += (goalData.targets[i] * goalData.progress[i]) / 100;
-                }
-
-                // Insight 1: Budget Utilization
-                if (totalBudget > 0) {
-                    const budgetUsed = (totalExpenses / totalBudget) * 100;
-                    if (budgetUsed < 20) {
-                        insights.push({
-                            type: 'success',
-                            icon: 'bi-check-circle-fill',
-                            title: 'Excellent Budget Management',
-                            description: 'You have only spent ' + budgetUsed.toFixed(1) + '% of your total budget (Rs.' + totalExpenses.toLocaleString('en-IN') + ' out of Rs.' + totalBudget.toLocaleString('en-IN') + '). You are doing great at controlling expenses!'
-                        });
-                    } else if (budgetUsed < 50) {
-                        insights.push({
-                            type: 'success',
-                            icon: 'bi-check-circle',
-                            title: 'Good Budget Control',
-                            description: 'You have used ' + budgetUsed.toFixed(1) + '% of your budget. Keep monitoring your spending to stay on track.'
-                        });
-                    } else if (budgetUsed < 80) {
-                        insights.push({
-                            type: 'warning',
-                            icon: 'bi-exclamation-triangle',
-                            title: 'Moderate Budget Usage',
-                            description: 'You have used ' + budgetUsed.toFixed(1) + '% of your budget. Consider reviewing non-essential expenses.'
-                        });
-                    } else {
-                        insights.push({
-                            type: 'danger',
-                            icon: 'bi-exclamation-circle-fill',
-                            title: 'Budget Alert',
-                            description: 'You have used ' + budgetUsed.toFixed(1) + '% of your budget. Review your spending immediately to avoid overspending.'
-                        });
-                    }
                 }
 
                 // Insight 2: Goal Progress
@@ -1795,36 +2091,43 @@
                     }
                 }
 
-                // Insight 3: Expense Pattern Analysis
-                if (expenseData.labels.length > 0) {
-                    // Find highest expense
-                    let maxExpenseIndex = 0;
-                    let maxAmount = expenseData.amounts[0];
-                    for (let i = 1; i < expenseData.amounts.length; i++) {
-                        if (expenseData.amounts[i] > maxAmount) {
-                            maxAmount = expenseData.amounts[i];
-                            maxExpenseIndex = i;
+                // Insight 3: Expense Pattern Analysis by Category
+                if (expenseData.categories.length > 0) {
+                    // Aggregate by category
+                    const categoryTotals = {};
+                    for (let i = 0; i < expenseData.categories.length; i++) {
+                        const cat = expenseData.categories[i] || 'Other';
+                        categoryTotals[cat] = (categoryTotals[cat] || 0) + expenseData.amounts[i];
+                    }
+
+                    // Find highest category
+                    let maxCategory = '';
+                    let maxAmount = 0;
+                    for (const [cat, amount] of Object.entries(categoryTotals)) {
+                        if (amount > maxAmount) {
+                            maxAmount = amount;
+                            maxCategory = cat;
                         }
                     }
-                    const maxExpensePercentage = (maxAmount / totalExpenses) * 100;
 
-                    insights.push({
-                        type: 'info',
-                        icon: 'bi-pie-chart-fill',
-                        title: 'Top Spending Category',
-                        description: '"' + expenseData.labels[maxExpenseIndex] + '" is your highest expense at Rs.' + maxAmount.toLocaleString('en-IN') + ' (' + maxExpensePercentage.toFixed(1) + '% of total spending).'
-                    });
+                    if (maxAmount > 0) {
+                        const maxExpensePercentage = (maxAmount / totalExpenses) * 100;
+                        insights.push({
+                            type: 'info',
+                            icon: 'bi-pie-chart-fill',
+                            title: 'Top Spending Category',
+                            description: '"' + maxCategory + '" is your highest expense category at Rs.' + maxAmount.toLocaleString('en-IN') + ' (' + maxExpensePercentage.toFixed(1) + '% of total spending).'
+                        });
+                    }
                 }
 
-                // Insight 4: Savings Potential
-                const savingsPotential = totalBudget - totalExpenses;
-                if (savingsPotential > 0 && totalBudget > 0) {
-                    const savingsRate = (savingsPotential / totalBudget) * 100;
+                // Insight 4: Total Expenses Summary
+                if (totalExpenses > 0) {
                     insights.push({
-                        type: 'success',
-                        icon: 'bi-piggy-bank-fill',
-                        title: 'Savings Opportunity',
-                        description: 'You have Rs.' + savingsPotential.toLocaleString('en-IN') + ' (' + savingsRate.toFixed(1) + '% of budget) available for savings or investments. Consider allocating this towards your goals!'
+                        type: 'info',
+                        icon: 'bi-cash-stack',
+                        title: 'Total Expenses',
+                        description: 'You have spent Rs.' + totalExpenses.toLocaleString('en-IN') + ' in total across ' + expenseData.amounts.length + ' expense' + (expenseData.amounts.length === 1 ? '' : 's') + '.'
                     });
                 }
 
@@ -1843,7 +2146,7 @@
                 const container = document.getElementById('aiInsightsContent');
                 if (container) {
                     if (insights.length === 0) {
-                        container.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-info-circle me-2"></i>Add expenses, budgets, and goals to see AI-powered insights!</div>';
+                        container.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-info-circle me-2"></i>Add expenses and goals to see AI-powered insights!</div>';
                         return;
                     }
 
@@ -2037,7 +2340,9 @@
                 e.preventDefault();
                 const formData = new URLSearchParams();
                 formData.append('expenseName', document.getElementById('expenseName').value);
+                formData.append('expenseCategory', document.getElementById('expenseCategory').value);
                 formData.append('expenseAmount', document.getElementById('newExpenseAmount').value);
+                formData.append('expenseDate', document.getElementById('expenseDate').value);
 
                 fetch('/home/expensetracker', {
                     method: 'POST',
@@ -2060,9 +2365,11 @@
                 e.preventDefault();
                 const expenseId = document.getElementById('expenseId').value;
                 const expenseAmount = document.getElementById('expenseAmount').value;
+                const expenseCategory = document.getElementById('editExpenseCategory').value;
                 const formData = new URLSearchParams();
                 formData.append('expenseId', expenseId);
                 formData.append('expenseAmount', expenseAmount);
+                formData.append('expenseCategory', expenseCategory);
 
                 fetch('/home/expensetracker/payment', {
                     method: 'POST',
@@ -2785,6 +3092,65 @@
                 }
             })();
 
+        </script>
+
+        <script>
+            // ================================================
+            // EXPENSE SEARCH AND FILTER
+            // ================================================
+            function filterExpenses() {
+                const searchText = document.getElementById('expenseSearchInput').value.toLowerCase();
+                const rows = document.querySelectorAll('.expense-row');
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const name = row.getAttribute('data-name').toLowerCase();
+                    const amount = row.getAttribute('data-amount');
+
+                    // Search filter only
+                    const matchesSearch = !searchText ||
+                        name.includes(searchText) ||
+                        amount.includes(searchText);
+
+                    // Show/hide row
+                    if (matchesSearch) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Show/hide "no results" message
+                const noResultsDiv = document.getElementById('noExpensesFound');
+                const tableDiv = document.getElementById('expensesTable');
+                if (visibleCount === 0) {
+                    noResultsDiv.style.display = 'block';
+                    tableDiv.style.display = 'none';
+                } else {
+                    noResultsDiv.style.display = 'none';
+                    tableDiv.style.display = 'table';
+                }
+            }
+
+            function clearExpenseFilters() {
+                document.getElementById('expenseSearchInput').value = '';
+                filterExpenses();
+            }
+
+            // Set today's date as default when adding new expense
+            document.addEventListener('DOMContentLoaded', function() {
+                const addExpenseModal = document.getElementById('addExpenseModal');
+                if (addExpenseModal) {
+                    addExpenseModal.addEventListener('show.bs.modal', function() {
+                        const dateInput = document.getElementById('expenseDate');
+                        if (dateInput && !dateInput.value) {
+                            const today = new Date().toISOString().split('T')[0];
+                            dateInput.value = today;
+                        }
+                    });
+                }
+            });
         </script>
 
         <script>
