@@ -851,6 +851,9 @@
                 <a href="#" class="nav-link" id="expense-tracker-link">
                     <i class="bi bi-receipt"></i> Expense Tracker
                 </a>
+                <a href="#" class="nav-link" id="income-deposit-link">
+                    <i class="bi bi-wallet2"></i> Percentage Transfers
+                </a>
             </div>
             <div style="position: absolute; bottom: 6rem; width: calc(100% - 3rem);">
                 <button id="themeToggle" class="btn-theme-toggle nav-link" aria-label="Toggle theme">
@@ -1332,6 +1335,116 @@
                 </div>
             </div>
 
+            <!-- 5. PERCENTAGE-BASED INCOME DEPOSIT TRANSFERS SECTION -->
+            <div id="income-deposit" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="page-title">Percentage-Based Income Transfers</h2>
+                        <p class="text-muted mb-0">Automate goal savings immediately upon incoming external deposits while protecting your checking balance safety floor.</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#configureIncomeRulesModal">
+                            <i class="bi bi-gear-fill"></i> Configure Rules & Floor
+                        </button>
+                        <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#triggerDepositModal">
+                            <i class="bi bi-wallet2"></i> Process Incoming Deposit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Balance & Guardrails Summary Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-label"><i class="bi bi-bank"></i> Checking Account Balance</div>
+                            <div class="h3 fw-bold mb-0 text-success" id="displayCheckingBalance">₹${accountSettings != null ? accountSettings.accountBalance : '10000.00'}</div>
+                            <small class="text-muted">Available checking funds</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-label"><i class="bi bi-shield-lock"></i> Overdraft Safety Floor</div>
+                            <div class="h3 fw-bold mb-0 text-warning" id="displaySafetyFloor">₹${accountSettings != null ? accountSettings.safetyFloor : '1000.00'}</div>
+                            <small class="text-muted">Minimum protected balance floor</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-label"><i class="bi bi-funnel"></i> Minimum Deposit Trigger</div>
+                            <div class="h3 fw-bold mb-0 text-info" id="displayMinDepositTrigger">₹${accountSettings != null ? accountSettings.minDepositAmount : '100.00'}</div>
+                            <small class="text-muted">External deposit threshold trigger</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goal Percentage Allocation Rules -->
+                <div class="card bg-surface border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center pt-3 pb-0">
+                        <h5 class="mb-0"><i class="bi bi-percent"></i> Active Goal Percentage Allocation Rules</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Goal Name</th>
+                                        <th>Target Amount</th>
+                                        <th>Current Paid Amount</th>
+                                        <th>Priority</th>
+                                        <th>Deposit Percentage Allocation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="goal" items="${userGoals}">
+                                        <tr>
+                                            <td class="fw-semibold">${goal.goalName}</td>
+                                            <td>₹${goal.target}</td>
+                                            <td>₹${goal.remainingAmount}</td>
+                                            <td>
+                                                <span class="badge bg-secondary">Priority ${goal.priority}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary px-3 py-2 fs-6">
+                                                    ${goal.allocationPercentage != null ? goal.allocationPercentage : 0.0}%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                    <c:if test="${empty userGoals}">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-3">No active goals configured. Create goals in Goal Setter to configure percentage rules.</td>
+                                        </tr>
+                                    </c:if>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Immediate Post-Execution Notifications Feed -->
+                <div class="card bg-surface border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 pt-3 pb-0">
+                        <h5 class="mb-0"><i class="bi bi-bell-fill"></i> Immediate Transfer Notifications & Audit Log</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="notificationListFeed">
+                            <c:forEach var="notif" items="${notifications}">
+                                <div class="alert ${notif.type == 'EXECUTED' ? 'alert-success' : (notif.type == 'REDUCED' ? 'alert-warning' : 'alert-secondary')} mb-3 shadow-sm">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="alert-heading mb-0 fw-bold">${notif.title}</h6>
+                                        <small class="text-muted">${notif.createdAt}</small>
+                                    </div>
+                                    <pre class="mb-0 fs-7" style="white-space: pre-wrap; font-family: inherit;">${notif.message}</pre>
+                                </div>
+                            </c:forEach>
+                            <c:if test="${empty notifications}">
+                                <div class="text-center text-muted py-4">No transfer notifications logged yet. Process an incoming deposit to see real-time execution results.</div>
+                            </c:if>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
 
         <!-- MODALS -->
@@ -1716,11 +1829,240 @@
             </div>
         </div>
 
+        <!-- Configure Income Rules & Safety Floor Modal -->
+        <div class="modal fade" id="configureIncomeRulesModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="bi bi-sliders"></i> Configure Income Transfer Rules & Safety Floor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="incomeSettingsForm">
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Checking Balance (₹)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="cfgAccountBalance" value="${accountSettings != null ? accountSettings.accountBalance : '10000.00'}" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Safety Floor (₹)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="cfgSafetyFloor" value="${accountSettings != null ? accountSettings.safetyFloor : '1000.00'}" required>
+                                    <small class="text-muted">Protected balance floor</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Min Deposit Trigger (₹)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="cfgMinDeposit" value="${accountSettings != null ? accountSettings.minDepositAmount : '100.00'}" required>
+                                    <small class="text-muted">Trigger threshold</small>
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold mb-3"><i class="bi bi-percent"></i> Goal Percentage Allocation Rules</h6>
+                            <div id="cfgGoalAllocationsContainer" class="mb-3">
+                                <c:forEach var="goal" items="${userGoals}">
+                                    <div class="row align-items-center mb-2">
+                                        <div class="col-6">
+                                            <span class="fw-semibold">${goal.goalName}</span>
+                                            <small class="text-muted ms-2">(Target: ₹${goal.target})</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="input-group">
+                                                <input type="number" step="0.1" min="0" max="100" class="form-control goal-pct-input" data-goal-id="${goal.id}" value="${goal.allocationPercentage != null ? goal.allocationPercentage : 0.0}">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                                <c:if test="${empty userGoals}">
+                                    <p class="text-muted">No goals available. Create goals first in Goal Setter.</p>
+                                </c:if>
+                            </div>
+
+                            <div class="alert alert-info d-flex justify-content-between align-items-center mb-3" id="cfgAllocationSumBanner">
+                                <span>Cumulative Allocation Total:</span>
+                                <span class="fw-bold fs-5" id="cfgTotalPctDisplay">0%</span>
+                            </div>
+
+                            <div id="cfgAllocationErrorAlert" class="alert alert-danger mb-3" style="display: none;"></div>
+
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2" id="cfgSaveBtn">Save Transfer Rules</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trigger Incoming Deposit Modal -->
+        <div class="modal fade" id="triggerDepositModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="bi bi-wallet2"></i> Process External Income Deposit</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="incomeDepositForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Incoming Deposit Amount (₹)</label>
+                                <input type="number" step="0.01" min="0.01" class="form-control form-control-lg" id="depositAmountInput" placeholder="e.g. 5000.00" required>
+                                <small class="text-muted">External paycheck or direct deposit confirmation</small>
+                            </div>
+
+                            <div id="depositResultAlert" class="alert mb-3" style="display: none;"></div>
+
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2" id="btnConfirmDeposit">Confirm Deposit & Execute Transfers</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
+            // Percentage Transfers JS Handler
+            function calcGoalPercentageTotal() {
+                let sum = 0;
+                document.querySelectorAll('.goal-pct-input').forEach(input => {
+                    let val = parseFloat(input.value) || 0;
+                    sum += val;
+                });
+                const display = document.getElementById('cfgTotalPctDisplay');
+                const banner = document.getElementById('cfgAllocationSumBanner');
+                const errAlert = document.getElementById('cfgAllocationErrorAlert');
+                const saveBtn = document.getElementById('cfgSaveBtn');
+
+                if (display) display.textContent = sum.toFixed(1) + '% / 100%';
+
+                if (sum > 100) {
+                    if (banner) {
+                        banner.classList.remove('alert-info', 'alert-success');
+                        banner.classList.add('alert-danger');
+                    }
+                    if (errAlert) {
+                        errAlert.style.display = 'block';
+                        errAlert.textContent = 'Validation Error: Cumulative goal allocation percentage cannot exceed 100% (Current: ' + sum.toFixed(1) + '%).';
+                    }
+                    if (saveBtn) saveBtn.disabled = true;
+                    return false;
+                } else {
+                    if (banner) {
+                        banner.classList.remove('alert-danger');
+                        banner.classList.add('alert-info');
+                    }
+                    if (errAlert) errAlert.style.display = 'none';
+                    if (saveBtn) saveBtn.disabled = false;
+                    return true;
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.goal-pct-input').forEach(input => {
+                    input.addEventListener('input', calcGoalPercentageTotal);
+                });
+                calcGoalPercentageTotal();
+
+                const incomeDepositLink = document.getElementById('income-deposit-link');
+                if (incomeDepositLink) {
+                    incomeDepositLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        showSection('income-deposit', 'income-deposit-link');
+                    });
+                }
+
+                // Income Settings Form Submission
+                const settingsForm = document.getElementById('incomeSettingsForm');
+                if (settingsForm) {
+                    settingsForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        if (!calcGoalPercentageTotal()) return;
+
+                        const goalAllocations = {};
+                        document.querySelectorAll('.goal-pct-input').forEach(input => {
+                            const goalId = input.getAttribute('data-goal-id');
+                            goalAllocations[goalId] = parseFloat(input.value) || 0;
+                        });
+
+                        const payload = {
+                            safetyFloor: parseFloat(document.getElementById('cfgSafetyFloor').value) || 0,
+                            minDepositAmount: parseFloat(document.getElementById('cfgMinDeposit').value) || 0,
+                            accountBalance: parseFloat(document.getElementById('cfgAccountBalance').value) || 0,
+                            goalAllocations: goalAllocations
+                        };
+
+                        fetch('/home/income/settings', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Income transfer rules and safety floor updated successfully!');
+                                window.location.reload();
+                            } else {
+                                const errAlert = document.getElementById('cfgAllocationErrorAlert');
+                                if (errAlert) {
+                                    errAlert.style.display = 'block';
+                                    errAlert.textContent = data.error || 'Failed to update settings';
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            alert('An error occurred while saving settings: ' + err);
+                        });
+                    });
+                }
+
+                // Process Income Deposit Form Submission
+                const depositForm = document.getElementById('incomeDepositForm');
+                if (depositForm) {
+                    depositForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const amount = parseFloat(document.getElementById('depositAmountInput').value) || 0;
+                        if (amount <= 0) return;
+
+                        const resAlert = document.getElementById('depositResultAlert');
+                        const confirmBtn = document.getElementById('btnConfirmDeposit');
+                        if (confirmBtn) confirmBtn.disabled = true;
+
+                        fetch('/home/income/deposit?amount=' + amount, {
+                            method: 'POST'
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (confirmBtn) confirmBtn.disabled = false;
+                            if (resAlert) {
+                                resAlert.style.display = 'block';
+                                if (data.status === 'EXECUTED') {
+                                    resAlert.className = 'alert alert-success shadow-sm mb-3';
+                                } else if (data.status === 'REDUCED') {
+                                    resAlert.className = 'alert alert-warning shadow-sm mb-3';
+                                } else {
+                                    resAlert.className = 'alert alert-secondary shadow-sm mb-3';
+                                }
+                                resAlert.innerHTML = '<strong>' + (data.status || 'PROCESSED') + ':</strong><br><pre class="mb-0 mt-1 fs-7" style="white-space: pre-wrap; font-family: inherit;">' + data.message + '</pre>';
+                            }
+
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2500);
+                        })
+                        .catch(err => {
+                            if (confirmBtn) confirmBtn.disabled = false;
+                            if (resAlert) {
+                                resAlert.style.display = 'block';
+                                resAlert.className = 'alert alert-danger shadow-sm mb-3';
+                                resAlert.textContent = 'Error processing deposit: ' + err;
+                            }
+                        });
+                    });
+                }
+            });
+
             // ================================================
             // SECTION SWITCHER — persists active tab in localStorage
             // ================================================

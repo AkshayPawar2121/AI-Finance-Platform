@@ -32,6 +32,9 @@ import com.nextgendemo.demo.Home.ExpenseTracker.Service.GeminiVisionService;
 import com.nextgendemo.demo.Home.GoalSetter.Entity.AmountSet;
 import com.nextgendemo.demo.Home.GoalSetter.Service.AmountSetService;
 import com.nextgendemo.demo.Home.GoalSetter.Service.GoalAllocationService;
+import com.nextgendemo.demo.Home.IncomeDeposit.Service.IncomeDepositService;
+import com.nextgendemo.demo.Home.IncomeDeposit.Entity.AccountSettings;
+import com.nextgendemo.demo.Home.IncomeDeposit.Entity.Notification;
 import com.nextgendemo.demo.Home.Chat.Service.FinancialAdvisorChatService;
 import com.nextgendemo.demo.Register.Service.RegisterService;
 import com.nextgendemo.demo.Register.Service.RegisterService.RegistrationResult;
@@ -59,6 +62,8 @@ public class MainController {
     private GoalAllocationService goalAllocationService;
     @Autowired
     private FinancialAdvisorChatService chatService;
+    @Autowired
+    private IncomeDepositService incomeDepositService;
 
     // Home Page Mapping
     @GetMapping("/")
@@ -127,6 +132,11 @@ public class MainController {
 	            model.addAttribute("userGoals", userGoals);
 	            model.addAttribute("userBudgets", userBudgets);
 	            model.addAttribute("userExpenses", userExpenses);
+
+	            AccountSettings accountSettings = incomeDepositService.getAccountSettings(userName);
+	            List<Notification> notifications = incomeDepositService.getUserNotifications(userName);
+	            model.addAttribute("accountSettings", accountSettings);
+	            model.addAttribute("notifications", notifications);
 	        }
 	
 	        return "home"; 
