@@ -29,6 +29,17 @@ public class AmountSet {
     @Column(name = "Priority", nullable = false)
     private Integer priority = 3; // Default: 3 = Medium (1=High, 2=Medium-High, 3=Medium, 4=Low, 5=Lowest)
 
+    @Column(name = "allocationPercentage", nullable = true)
+    private Double allocationPercentage = 0.0;
+
+    public Double getAllocationPercentage() {
+        return allocationPercentage != null ? allocationPercentage : 0.0;
+    }
+
+    public void setAllocationPercentage(Double allocationPercentage) {
+        this.allocationPercentage = allocationPercentage != null ? allocationPercentage : 0.0;
+    }
+
     // Getter and Setter for remainingAmount (stores PAID amount)
 	 public Integer getRemainingAmount() {
 	     return remainingAmount;
